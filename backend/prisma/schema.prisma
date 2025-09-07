@@ -1,0 +1,66 @@
+// FILE: prisma/schema.prisma
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ENUMS
+enum Role {
+  ADMIN
+  FARMER
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+}
+
+// MODELS
+model User {
+  id              String           @id @default(cuid())
+  name            String
+  email           String           @unique
+  password        String
+  role            Role             @default(FARMER)
+  createdAt       DateTime         @default(now())
+  
+  milkCollections MilkCollection[]
+  payments        Payment[]
+}
+
+model MilkCollection {
+  id            String   @id @default(cuid())
+  quantity      Float
+  fatPercentage Float
+  snf           Float    @default(8.5) // Standard Neutral Fat
+  isBilled      Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  
+  user     User   @relation(fields: [userId], references: [id])
+  userId   String
+}
+
+model Payment {
+  id              String        @id @default(cuid())
+  amount          Float
+  periodStartDate DateTime
+  periodEndDate   DateTime
+  status          PaymentStatus @default(PENDING)
+  createdAt       DateTime      @default(now())
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+}
+
+model Expense {
+  id          String   @id @default(cuid())
+  description String
+  amount      Float
+  category    String?
+  date        DateTime @default(now())
+}
