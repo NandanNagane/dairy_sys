@@ -1,7 +1,7 @@
 // FILE: src/middleware/auth.middleware.js
 
-const jwt = require('jsonwebtoken');
-const { PrismaClient } = require('@prisma/client');
+import jwt from 'jsonwebtoken';
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -99,7 +99,7 @@ const requireAdminOrSelfAccess = (req, res, next) => {
   return res.status(403).json({ error: 'Access denied' });
 };
 
-module.exports = {
+export {
   authenticateToken,
   requireAdmin,
   requireAdminOrSelfAccess

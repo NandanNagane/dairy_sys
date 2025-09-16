@@ -1,6 +1,6 @@
 // FILE: src/api/milk-collections/milk-collections.controller.js
 
-const { PrismaClient } = require('@prisma/client');
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -333,7 +333,7 @@ const deleteMilkCollection = async (req, res) => {
   }
 };
 
-module.exports = {
+export {
   createMilkCollection,
   getAllMilkCollections,
   getMilkCollectionById,

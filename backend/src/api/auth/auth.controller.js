@@ -1,8 +1,8 @@
 // FILE: src/api/auth/auth.controller.js
 
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const { PrismaClient } = require('@prisma/client');
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -109,7 +109,8 @@ const initializeAdmin = async (req, res) => {
  */
 const register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body;
+    
 
     // Validate required fields
     if (!name || !email || !password) {
@@ -131,6 +132,10 @@ const register = async (req, res) => {
       });
     }
 
+    // Validate role if provided
+    const validRoles = ['ADMIN', 'FARMER'];
+    const userRole = role && validRoles.includes(role) ? role : 'FARMER';
+
     // Check if email is already taken
     const existingUser = await prisma.user.findUnique({
       where: { email }
@@ -146,13 +151,13 @@ const register = async (req, res) => {
     const saltRounds = parseInt(process.env.BCRYPT_ROUNDS) || 12;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    // Create farmer user (role defaults to FARMER)
-    const farmer = await prisma.user.create({
+    // Create user with specified role
+    const user = await prisma.user.create({
       data: {
         name,
         email,
-        password: hashedPassword
-        // role: 'FARMER' is default as per schema
+        password: hashedPassword,
+        role: userRole
       },
       select: {
         id: true,
@@ -166,17 +171,17 @@ const register = async (req, res) => {
     // Generate JWT token
     const token = jwt.sign(
       { 
-        userId: farmer.id, 
-        email: farmer.email, 
-        role: farmer.role 
+        userId: user.id, 
+        email: user.email, 
+        role: user.role 
       },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
     );
 
     res.status(201).json({
-      message: 'Farmer registered successfully',
-      user: farmer,
+      message: 'User registered successfully',
+      user: user,
       token
     });
 
@@ -247,7 +252,7 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = {
+export {
   initializeAdmin,
   register,
   login

@@ -1,7 +1,7 @@
 // FILE: src/api/reports/reports.controller.js
 
-const { PrismaClient } = require('@prisma/client');
-const { generateFarmerStatement } = require('../../utils/pdf.util');
+import { PrismaClient } from '@prisma/client';
+import { generateFarmerStatement } from '../../utils/pdf.util.js';
 
 const prisma = new PrismaClient();
 
@@ -127,6 +127,6 @@ const generateFarmerStatementController = async (req, res) => {
   }
 };
 
-module.exports = {
-  generateFarmerStatement: generateFarmerStatementController
+export {
+  generateFarmerStatementController as generateFarmerStatement
 };

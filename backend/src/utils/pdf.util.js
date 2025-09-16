@@ -1,6 +1,6 @@
 // FILE: src/utils/pdf.util.js
 
-const PDFDocument = require('pdfkit');
+import PDFDocument from 'pdfkit';
 
 /**
  * Generate a farmer statement PDF
@@ -190,7 +190,7 @@ const generateSummaryReport = (data) => {
   return doc;
 };
 
-module.exports = {
+export {
   generateFarmerStatement,
   generateSummaryReport
 };

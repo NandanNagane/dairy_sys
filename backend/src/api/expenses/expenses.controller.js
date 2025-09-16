@@ -1,6 +1,6 @@
 // FILE: src/api/expenses/expenses.controller.js
 
-const { PrismaClient } = require('@prisma/client');
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -299,7 +299,7 @@ const deleteExpense = async (req, res) => {
   }
 };
 
-module.exports = {
+export {
   createExpense,
   getAllExpenses,
   getExpenseById,

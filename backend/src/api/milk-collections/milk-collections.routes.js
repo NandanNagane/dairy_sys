@@ -1,8 +1,8 @@
 // FILE: src/api/milk-collections/milk-collections.routes.js
 
-const express = require('express');
-const milkCollectionsController = require('./milk-collections.controller');
-const { authenticateToken, requireAdmin } = require('../../middleware/auth.middleware');
+import express from 'express';
+import * as milkCollectionsController from './milk-collections.controller.js';
+import { authenticateToken, requireAdmin } from '../../middleware/auth.middleware.js';
 
 const router = express.Router();
 
@@ -41,4 +41,4 @@ router.put('/:id', authenticateToken, requireAdmin, milkCollectionsController.up
  */
 router.delete('/:id', authenticateToken, requireAdmin, milkCollectionsController.deleteMilkCollection);
 
-module.exports = router;
+export default router;

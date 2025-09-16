@@ -1,8 +1,8 @@
 // FILE: src/api/expenses/expenses.routes.js
 
-const express = require('express');
-const expensesController = require('./expenses.controller');
-const { authenticateToken, requireAdmin } = require('../../middleware/auth.middleware');
+import express from 'express';
+import * as expensesController from './expenses.controller.js';
+import { authenticateToken, requireAdmin } from '../../middleware/auth.middleware.js';
 
 const router = express.Router();
 
@@ -41,4 +41,4 @@ router.put('/:id', authenticateToken, requireAdmin, expensesController.updateExp
  */
 router.delete('/:id', authenticateToken, requireAdmin, expensesController.deleteExpense);
 
-module.exports = router;
+export default router;

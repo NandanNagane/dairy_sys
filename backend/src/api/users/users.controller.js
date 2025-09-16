@@ -1,6 +1,6 @@
 // FILE: src/api/users/users.controller.js
 
-const { PrismaClient } = require('@prisma/client');
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -290,7 +290,7 @@ const getUserPayments = async (req, res) => {
   }
 };
 
-module.exports = {
+export {
   getAllUsers,
   getCurrentUser,
   getUserById,

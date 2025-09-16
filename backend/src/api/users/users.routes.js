@@ -1,8 +1,8 @@
 // FILE: src/api/users/users.routes.js
 
-const express = require('express');
-const usersController = require('./users.controller');
-const { authenticateToken, requireAdmin, requireAdminOrSelfAccess } = require('../../middleware/auth.middleware');
+import express from 'express';
+import * as usersController from './users.controller.js';
+import { authenticateToken, requireAdmin, requireAdminOrSelfAccess } from '../../middleware/auth.middleware.js';
 
 const router = express.Router();
 
@@ -41,4 +41,4 @@ router.get('/:userId/milk-collections', authenticateToken, requireAdminOrSelfAcc
  */
 router.get('/:userId/payments', authenticateToken, requireAdminOrSelfAccess, usersController.getUserPayments);
 
-module.exports = router;
+export default router;

@@ -1,20 +1,21 @@
 // FILE: src/server.js
 
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
-require('dotenv').config();
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import dotenv from 'dotenv';
+dotenv.config();
 
-const { PrismaClient } = require('@prisma/client');
+import { PrismaClient } from '@prisma/client';
 
 // Import route modules
-const authRoutes = require('./api/auth/auth.routes');
-const userRoutes = require('./api/users/users.routes');
-const milkCollectionRoutes = require('./api/milk-collections/milk-collections.routes');
-const paymentRoutes = require('./api/payments/payments.routes');
-const expenseRoutes = require('./api/expenses/expenses.routes');
-const reportRoutes = require('./api/reports/reports.routes');
+import authRoutes from './api/auth/auth.routes.js';
+import userRoutes from './api/users/users.routes.js';
+import milkCollectionRoutes from './api/milk-collections/milk-collections.routes.js';
+import paymentRoutes from './api/payments/payments.routes.js';
+import expenseRoutes from './api/expenses/expenses.routes.js';
+import reportRoutes from './api/reports/reports.routes.js';
 
 // Initialize Prisma client
 const prisma = new PrismaClient();
@@ -23,8 +24,42 @@ const prisma = new PrismaClient();
 const app = express();
 
 // Security middleware
-app.use(helmet());
-app.use(cors());
+// app.use(helmet());
+
+// CORS configuration for frontend
+const corsOptions = {
+  origin: [
+    'http://localhost:5173', // Vite default port
+    'http://localhost:5174', // Alternative Vite port
+    'http://localhost:3000', // Common React port
+    'http://127.0.0.1:5173',
+    'http://127.0.0.1:5174',
+    'http://127.0.0.1:3000'
+  ],
+  credentials: true,
+  optionsSuccessStatus: 200,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: [
+    'Origin',
+    'X-Requested-With',
+    'Content-Type',
+    'Accept',
+    'Authorization',
+    'Cache-Control',
+    'Pragma'
+  ]
+};
+
+app.use(cors(corsOptions));
+
+// Handle preflight requests for all routes
+app.options('*', (req, res) => {
+  res.header('Access-Control-Allow-Origin', req.headers.origin);
+  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,PATCH,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin,X-Requested-With,Content-Type,Accept,Authorization,Cache-Control,Pragma');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.sendStatus(200);
+});
 
 // Rate limiting
 const limiter = rateLimit({
@@ -106,4 +141,4 @@ app.listen(PORT, () => {
   console.log(`📊 Health check: http://localhost:${PORT}/health`);
 });
 
-module.exports = app;
+export default app;

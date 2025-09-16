@@ -1,8 +1,8 @@
 // FILE: src/api/payments/payments.routes.js
 
-const express = require('express');
-const paymentsController = require('./payments.controller');
-const { authenticateToken, requireAdmin, requireAdminOrSelfAccess } = require('../../middleware/auth.middleware');
+import express from 'express';
+import * as paymentsController from './payments.controller.js';
+import { authenticateToken, requireAdmin, requireAdminOrSelfAccess } from '../../middleware/auth.middleware.js';
 
 const router = express.Router();
 
@@ -34,4 +34,4 @@ router.get('/payments/:id', authenticateToken, requireAdmin, paymentsController.
  */
 router.patch('/payments/:id', authenticateToken, requireAdmin, paymentsController.updatePaymentStatus);
 
-module.exports = router;
+export default router;

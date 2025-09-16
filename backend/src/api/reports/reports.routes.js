@@ -1,8 +1,8 @@
 // FILE: src/api/reports/reports.routes.js
 
-const express = require('express');
-const reportsController = require('./reports.controller');
-const { authenticateToken, requireAdminOrSelfAccess } = require('../../middleware/auth.middleware');
+import express from 'express';
+import * as reportsController from './reports.controller.js';
+import { authenticateToken, requireAdminOrSelfAccess } from '../../middleware/auth.middleware.js';
 
 const router = express.Router();
 
@@ -13,4 +13,4 @@ const router = express.Router();
  */
 router.get('/farmer-statement/:userId', authenticateToken, requireAdminOrSelfAccess, reportsController.generateFarmerStatement);
 
-module.exports = router;
+export default router;
