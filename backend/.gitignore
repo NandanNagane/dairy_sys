@@ -8,8 +8,6 @@
 .env.test.local
 .env.production.local
 
-# Prisma specific
-prisma/migrations/
 
 # Upload directories
 uploads/

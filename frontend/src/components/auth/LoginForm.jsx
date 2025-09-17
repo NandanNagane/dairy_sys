@@ -35,10 +35,14 @@ export const LoginForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await login(formData);
-      navigate(from, { replace: true });
-    } catch (error) {
-      console.error('Login failed:', error);
+      const success = await login(formData); // returns boolean
+      if (success) {
+        navigate(from, { replace: true });
+      }
+      // on failure, error stays rendered and no navigation happens
+    } catch (err) {
+      // if you choose to throw in store instead, keep this catch
+      console.error('Login failed:', err);
     }
   };
 

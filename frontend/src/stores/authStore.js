@@ -16,32 +16,33 @@ export const useAuthStore = create(
 
       // Actions
       login: async (credentials) => {
-        set({ isLoading: true, error: null });
-        try {
-          const response = await authAPI.login(credentials);
-          const { user, token } = response;
-          
-          // Store token in localStorage for API interceptor
-          localStorage.setItem('authToken', token);
-          localStorage.setItem('user', JSON.stringify(user));
-          
-          set({
-            user,
-            token,
-            isAuthenticated: true,
-            isLoading: false,
-            error: null,
-          });
-          
-          return response;
-        } catch (error) {
-          set({
-            isLoading: false,
-            error: error.response?.data?.error || 'Login failed',
-          });
-          throw error;
-        }
-      },
+    set({ isLoading: true, error: null });
+    try {
+      const { data } = await authService.login(credentials); // { token, user }
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      set({
+        user: data.user,
+        token: data.token,
+        isAuthenticated: true,
+      });
+      return true; // success
+    } catch (err) {
+      const message =
+        err?.response?.data?.error ||
+        err?.response?.data?.message ||
+        'Invalid email or password';
+      set({
+        error: message,
+        isAuthenticated: false,
+        user: null,
+        token: null,
+      });
+      return false; // do NOT throw; signal failure
+    } finally {
+      set({ isLoading: false });
+    }
+  },
 
       register: async (userData) => {
         set({ isLoading: true, error: null });
