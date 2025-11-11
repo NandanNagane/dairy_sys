@@ -26,11 +26,13 @@ model User {
   name            String
   email           String           @unique
   password        String
+  phone           String?
   role            Role             @default(FARMER)
   createdAt       DateTime         @default(now())
   
   milkCollections MilkCollection[]
   payments        Payment[]
+  expenses        Expense[]
 }
 
 model MilkCollection {
@@ -63,4 +65,7 @@ model Expense {
   amount      Float
   category    String?
   date        DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
 }

@@ -26,4 +26,11 @@ router.post('/register', authController.register);
  */
 router.post('/login', authController.login);
 
+/**
+ * @route   POST /api/v1/auth/logout
+ * @desc    Logout user and clear token cookie
+ * @access  Public
+ */
+router.post('/logout', authController.logout);
+
 export default router;

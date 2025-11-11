@@ -1,8 +1,6 @@
 // FILE: src/api/milk-collections/milk-collections.controller.js
 
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '../../config/prisma.js';
 
 /**
  * Create a new milk collection record
@@ -11,12 +9,31 @@ const prisma = new PrismaClient();
  */
 const createMilkCollection = async (req, res) => {
   try {
-    const { userId, quantity, fatPercentage, snf } = req.body;
+    // Debug logging
+    console.log('📦 Received request body:', req.body);
+    
+    // Accept both frontend field names (farmerId, fat) and backend field names (userId, fatPercentage)
+    const { 
+      userId: userIdParam, 
+      farmerId,
+      quantity, 
+      fatPercentage: fatPercentageParam, 
+      fat,
+      snf 
+    } = req.body;
+
+    // Use farmerId if provided, otherwise use userId
+    const userId = farmerId || userIdParam;
+    // Use fat if provided, otherwise use fatPercentage
+    const fatPercentage = fat !== undefined ? fat : fatPercentageParam;
+
+    console.log('🔍 Parsed values:', { userId, quantity, fatPercentage, snf });
 
     // Validate required fields
-    if (!userId || !quantity || !fatPercentage) {
+    if (!userId || !quantity || fatPercentage === undefined) {
+      console.log('❌ Validation failed:', { userId, quantity, fatPercentage });
       return res.status(400).json({ 
-        error: 'userId, quantity, and fatPercentage are required' 
+        error: 'userId (or farmerId), quantity, and fatPercentage (or fat) are required' 
       });
     }
 
@@ -36,6 +53,13 @@ const createMilkCollection = async (req, res) => {
     if (snf !== undefined && (typeof snf !== 'number' || snf < 0 || snf > 15)) {
       return res.status(400).json({ 
         error: 'SNF must be a number between 0 and 15' 
+      });
+    }
+
+    // Validate userId is a string (CUID format expected)
+    if (typeof userId !== 'string' || userId.trim() === '') {
+      return res.status(400).json({ 
+        error: 'userId must be a valid string ID' 
       });
     }
 

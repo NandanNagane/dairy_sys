@@ -1,8 +1,6 @@
 // FILE: src/api/users/users.controller.js
 
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '../../config/prisma.js';
 
 /**
  * Get all users with optional role filtering
@@ -31,12 +29,9 @@ const getAllUsers = async (req, res) => {
           id: true,
           name: true,
           email: true,
+          phone: true,
           role: true,
-          createdAt: true,
-          _count: {
-            milkCollections: true,
-            payments: true
-          }
+          createdAt: true
         },
         orderBy: { createdAt: 'desc' },
         skip,
@@ -290,10 +285,128 @@ const getUserPayments = async (req, res) => {
   }
 };
 
+/**
+ * Update user profile
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const updateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, email, phone } = req.body;
+
+    // Check if user exists
+    const existingUser = await prisma.user.findUnique({
+      where: { id }
+    });
+
+    if (!existingUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Check if email is already taken by another user
+    if (email && email !== existingUser.email) {
+      const emailExists = await prisma.user.findUnique({
+        where: { email }
+      });
+
+      if (emailExists) {
+        return res.status(400).json({ error: 'Email already in use' });
+      }
+    }
+
+    // Build update data
+    const updateData = {};
+    if (name) updateData.name = name;
+    if (email) updateData.email = email;
+    if (phone !== undefined) updateData.phone = phone; // Allow clearing phone with null/empty string
+
+    // Update user
+    const updatedUser = await prisma.user.update({
+      where: { id },
+      data: updateData,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        role: true,
+        createdAt: true
+      }
+    });
+
+    res.json({ 
+      message: 'User updated successfully',
+      user: updatedUser 
+    });
+
+  } catch (error) {
+    console.error('Update user error:', error);
+    res.status(500).json({ error: 'Failed to update user' });
+  }
+};
+
+/**
+ * Delete user
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Check if user exists
+    const existingUser = await prisma.user.findUnique({
+      where: { id },
+      include: {
+        _count: {
+          select: {
+            milkCollections: true,
+            payments: true,
+            expenses: true
+          }
+        }
+      }
+    });
+
+    if (!existingUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Prevent deleting user with existing records (optional - you can modify this logic)
+    const hasRecords = existingUser._count.milkCollections > 0 || 
+                       existingUser._count.payments > 0 || 
+                       existingUser._count.expenses > 0;
+
+    if (hasRecords) {
+      return res.status(400).json({ 
+        error: 'Cannot delete user with existing milk collections, payments, or expenses. Please delete associated records first.',
+        details: existingUser._count
+      });
+    }
+
+    // Delete user
+    await prisma.user.delete({
+      where: { id }
+    });
+
+    res.json({ 
+      message: 'User deleted successfully',
+      deletedUserId: id 
+    });
+
+  } catch (error) {
+    console.error('Delete user error:', error);
+    res.status(500).json({ error: 'Failed to delete user' });
+  }
+};
+
 export {
   getAllUsers,
   getCurrentUser,
   getUserById,
   getUserMilkCollections,
-  getUserPayments
+  getUserPayments,
+  updateUser,
+  deleteUser
 };

@@ -2,9 +2,16 @@
 
 import express from 'express';
 import * as reportsController from './reports.controller.js';
-import { authenticateToken, requireAdminOrSelfAccess } from '../../middleware/auth.middleware.js';
+import { authenticateToken, requireAdminOrSelfAccess, requireAdmin } from '../../middleware/auth.middleware.js';
 
 const router = express.Router();
+
+/**
+ * @route   GET /api/v1/reports/dashboard-stats
+ * @desc    Get dashboard statistics for admin
+ * @access  Admin only
+ */
+router.get('/dashboard-stats', authenticateToken, requireAdmin, reportsController.getDashboardStats);
 
 /**
  * @route   GET /api/v1/reports/farmer-statement/:userId

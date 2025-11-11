@@ -1,20 +1,30 @@
 // FILE: src/middleware/auth.middleware.js
 
 import jwt from 'jsonwebtoken';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '../config/prisma.js';
 
 /**
  * Middleware to verify JWT token and attach user data to request
+ * Checks for token in cookies first, then falls back to Authorization header
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  * @param {Function} next - Express next function
  */
 const authenticateToken = async (req, res, next) => {
   try {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+    console.log('🔍 Auth Middleware - Cookies:', req.cookies);
+    console.log('🔍 Auth Middleware - Headers:', req.headers.authorization);
+    
+    // Check for token in cookie first
+    let token = req.cookies?.token;
+    
+    // If no cookie token, check Authorization header
+    if (!token) {
+      const authHeader = req.headers['authorization'];
+      token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+    }
+
+    console.log('🔍 Auth Middleware - Token found:', !!token);
 
     if (!token) {
       return res.status(401).json({ error: 'Access token required' });
@@ -22,23 +32,14 @@ const authenticateToken = async (req, res, next) => {
 
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
-    // Optional: Verify user still exists in database
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
-      select: { id: true, email: true, role: true, name: true }
-    });
+    console.log('✅ Auth Middleware - Token decoded:', decoded);
 
-    if (!user) {
-      return res.status(401).json({ error: 'User not found' });
-    }
-
-    // Attach user data to request
+    // Attach user data to request directly from token
+    // (No database query to avoid Prisma connection issues)
     req.user = {
       userId: decoded.userId,
       email: decoded.email,
       role: decoded.role,
-      name: user.name
     };
 
     next();

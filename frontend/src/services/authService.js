@@ -17,6 +17,14 @@ export const authAPI = {
   // Login user
   login: async (credentials) => {
     const response = await apiClient.post('/auth/login', credentials);
+    console.log(response.data);
+    
+    return response.data;
+  },
+
+  // Logout user (clears cookie)
+  logout: async () => {
+    const response = await apiClient.post('/auth/logout');
     return response.data;
   },
 };

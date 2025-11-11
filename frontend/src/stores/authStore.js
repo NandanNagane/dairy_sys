@@ -17,13 +17,15 @@ export const useAuthStore = create(
       // Actions
       login: async (credentials) => {
     set({ isLoading: true, error: null });
+    
     try {
-      const { data } = await authService.login(credentials); // { token, user }
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
+      const data = await authAPI.login(credentials); // { token, user }
+
+      // Token is stored in HTTP-only cookie by backend
+      // Only store user data in state (not localStorage for security)
       set({
         user: data.user,
-        token: data.token,
+        token: null, // Don't store token in state, rely on cookie
         isAuthenticated: true,
       });
       return true; // success
@@ -48,15 +50,12 @@ export const useAuthStore = create(
         set({ isLoading: true, error: null });
         try {
           const response = await authAPI.register(userData);
-          const { user, token } = response;
+          const { user } = response;
           
-          // Store token in localStorage for API interceptor
-          localStorage.setItem('authToken', token);
-          localStorage.setItem('user', JSON.stringify(user));
-          
+          // Token is stored in HTTP-only cookie by backend
           set({
             user,
-            token,
+            token: null, // Don't store token, rely on cookie
             isAuthenticated: true,
             isLoading: false,
             error: null,
@@ -76,15 +75,12 @@ export const useAuthStore = create(
         set({ isLoading: true, error: null });
         try {
           const response = await authAPI.initializeAdmin(userData);
-          const { user, token } = response;
+          const { user } = response;
           
-          // Store token in localStorage for API interceptor
-          localStorage.setItem('authToken', token);
-          localStorage.setItem('user', JSON.stringify(user));
-          
+          // Token is stored in HTTP-only cookie by backend
           set({
             user,
-            token,
+            token: null, // Don't store token, rely on cookie
             isAuthenticated: true,
             isLoading: false,
             error: null,
@@ -100,16 +96,22 @@ export const useAuthStore = create(
         }
       },
 
-      logout: () => {
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('user');
-        set({
-          user: null,
-          token: null,
-          isAuthenticated: false,
-          isLoading: false,
-          error: null,
-        });
+      logout: async () => {
+        try {
+          // Call backend to clear cookie
+          await authAPI.logout();
+        } catch (error) {
+          console.error('Logout error:', error);
+        } finally {
+          // Clear state (no localStorage to clear, using cookies only)
+          set({
+            user: null,
+            token: null,
+            isAuthenticated: false,
+            isLoading: false,
+            error: null,
+          });
+        }
       },
 
       clearError: () => {
@@ -133,9 +135,9 @@ export const useAuthStore = create(
       name: 'auth-storage',
       partialize: (state) => ({
         user: state.user,
-        token: state.token,
+        // Don't persist token - it's in HTTP-only cookie
         isAuthenticated: state.isAuthenticated,
-     
-    }),
-})
+      }),
+    }
+  )
 );

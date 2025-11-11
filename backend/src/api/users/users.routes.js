@@ -41,4 +41,18 @@ router.get('/:userId/milk-collections', authenticateToken, requireAdminOrSelfAcc
  */
 router.get('/:userId/payments', authenticateToken, requireAdminOrSelfAccess, usersController.getUserPayments);
 
+/**
+ * @route   PUT /api/v1/users/:id
+ * @desc    Update user profile
+ * @access  Admin only
+ */
+router.put('/:id', authenticateToken, requireAdmin, usersController.updateUser);
+
+/**
+ * @route   DELETE /api/v1/users/:id
+ * @desc    Delete user
+ * @access  Admin only
+ */
+router.delete('/:id', authenticateToken, requireAdmin, usersController.deleteUser);
+
 export default router;

@@ -1,10 +1,19 @@
 // FILE: src/api/auth/auth.controller.js
 
+import prisma from '../../config/prisma.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
+/**
+ * Cookie configuration helper
+ */
+const getCookieOptions = () => ({
+  httpOnly: true,
+  secure: false, // Set to false for localhost development
+  sameSite: 'lax',
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  path: '/'
+});
 
 /**
  * Initialize the first admin user
@@ -89,6 +98,9 @@ const initializeAdmin = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
     );
+
+    // Set token in HTTP-only cookie
+    res.cookie('token', token, getCookieOptions());
 
     res.status(201).json({
       message: 'Admin user created successfully',
@@ -179,6 +191,9 @@ const register = async (req, res) => {
       { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
     );
 
+    // Set token in HTTP-only cookie
+    res.cookie('token', token, getCookieOptions());
+
     res.status(201).json({
       message: 'User registered successfully',
       user: user,
@@ -237,6 +252,9 @@ const login = async (req, res) => {
       { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
     );
 
+    // Set token in HTTP-only cookie
+    res.cookie('token', token, getCookieOptions());
+
     // Return user data (without password) and token
     const { password: _, ...userWithoutPassword } = user;
 
@@ -252,8 +270,32 @@ const login = async (req, res) => {
   }
 };
 
+/**
+ * Logout user by clearing the token cookie
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const logout = async (req, res) => {
+  try {
+    // Clear the token cookie
+    res.clearCookie('token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax'
+    });
+
+    res.json({
+      message: 'Logout successful'
+    });
+  } catch (error) {
+    console.error('Logout error:', error);
+    res.status(500).json({ error: 'Logout failed' });
+  }
+};
+
 export {
   initializeAdmin,
   register,
-  login
+  login,
+  logout
 };

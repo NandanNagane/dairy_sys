@@ -1,8 +1,6 @@
 // FILE: src/api/payments/payments.controller.js
 
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '../../config/prisma.js';
 
 // Milk rate per liter (can be made configurable)
 const MILK_RATE_PER_LITER = 35;

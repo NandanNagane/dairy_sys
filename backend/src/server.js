@@ -4,10 +4,11 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 dotenv.config();
 
-import { PrismaClient } from '@prisma/client';
+import prisma from './config/prisma.js';
 
 // Import route modules
 import authRoutes from './api/auth/auth.routes.js';
@@ -16,9 +17,6 @@ import milkCollectionRoutes from './api/milk-collections/milk-collections.routes
 import paymentRoutes from './api/payments/payments.routes.js';
 import expenseRoutes from './api/expenses/expenses.routes.js';
 import reportRoutes from './api/reports/reports.routes.js';
-
-// Initialize Prisma client
-const prisma = new PrismaClient();
 
 // Create Express app
 const app = express();
@@ -72,6 +70,9 @@ app.use(limiter);
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+// Cookie parser middleware
+app.use(cookieParser());
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -127,8 +128,15 @@ process.on('SIGINT', async () => {
   process.exit(0);
 });
 
+// Graceful shutdown handlers
 process.on('SIGTERM', async () => {
   console.log('Received SIGTERM, gracefully shutting down...');
+  await prisma.$disconnect();
+  process.exit(0);
+});
+
+process.on('SIGINT', async () => {
+  console.log('Received SIGINT, gracefully shutting down...');
   await prisma.$disconnect();
   process.exit(0);
 });

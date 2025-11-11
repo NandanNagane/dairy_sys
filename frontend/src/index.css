@@ -1,0 +1,169 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    /* Primary - Green for normal/success states */
+    --primary: 142 76% 36%;
+    --primary-foreground: 0 0% 100%;
+    
+    /* Success - Green */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+    
+    /* Warning - Amber */
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    
+    /* Critical/Destructive - Red */
+    --critical: 0 84% 60%;
+    --critical-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    /* Neutral colors */
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    
+    --secondary: 214 32% 91%;
+    --secondary-foreground: 222 47% 11%;
+    
+    --muted: 214 32% 91%;
+    --muted-foreground: 215 16% 47%;
+    
+    --accent: 214 32% 91%;
+    --accent-foreground: 222 47% 11%;
+    
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 142 76% 36%;
+    
+    --radius: 0.5rem;
+    
+    /* Chart colors */
+    --chart-1: 142 76% 36%;
+    --chart-2: 38 92% 50%;
+    --chart-3: 0 84% 60%;
+    --chart-4: 217 91% 60%;
+    --chart-5: 280 80% 60%;
+  }
+
+  .dark {
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+    
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 98%;
+    
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
+    
+    --primary: 142 76% 36%;
+    --primary-foreground: 0 0% 100%;
+    
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+    
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    
+    --critical: 0 84% 60%;
+    --critical-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+    
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    
+    --accent: 217 33% 17%;
+    --accent-foreground: 210 40% 98%;
+    
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 142 76% 36%;
+    
+    --chart-1: 142 76% 36%;
+    --chart-2: 38 92% 50%;
+    --chart-3: 0 84% 60%;
+    --chart-4: 217 91% 60%;
+    --chart-5: 280 80% 60%;
+  }
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  /* Ensure minimum touch target size of 44px */
+  button, a, input, select, textarea {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Focus styles for accessibility */
+  *:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--ring), 0 0 0 4px transparent;
+  }
+}
+
+@layer utilities {
+  /* Status colors */
+  .status-normal {
+    background-color: rgb(220 252 231);
+    color: rgb(22 101 52);
+  }
+  
+  .status-warning {
+    background-color: rgb(254 243 199);
+    color: rgb(146 64 14);
+  }
+  
+  .status-critical {
+    background-color: rgb(254 226 226);
+    color: rgb(153 27 27);
+  }
+  
+  /* Dark mode */
+  :is(.dark *).status-normal {
+    background-color: rgb(20 83 45);
+    color: rgb(220 252 231);
+  }
+  
+  :is(.dark *).status-warning {
+    background-color: rgb(120 53 15);
+    color: rgb(254 243 199);
+  }
+  
+  :is(.dark *).status-critical {
+    background-color: rgb(127 29 29);
+    color: rgb(254 226 226);
+  }
+  
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    .status-normal {
+      border: 2px solid rgb(22 101 52);
+    }
+    .status-warning {
+      border: 2px solid rgb(146 64 14);
+    }
+    .status-critical {
+      border: 2px solid rgb(153 27 27);
+    }
+  }
+}

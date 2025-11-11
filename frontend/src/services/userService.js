@@ -20,6 +20,24 @@ export const userAPI = {
     return response.data;
   },
 
+  // Create new user (uses register endpoint from auth)
+  createUser: async (userData) => {
+    const response = await apiClient.post('/auth/register', userData);
+    return response.data;
+  },
+
+  // Update user (Admin only)
+  updateUser: async (userId, userData) => {
+    const response = await apiClient.put(`/users/${userId}`, userData);
+    return response.data;
+  },
+
+  // Delete user (Admin only)
+  deleteUser: async (userId) => {
+    const response = await apiClient.delete(`/users/${userId}`);
+    return response.data;
+  },
+
   // Get user's milk collections
   getUserMilkCollections: async (userId, params = {}) => {
     const response = await apiClient.get(`/users/${userId}/milk-collections`, { params });

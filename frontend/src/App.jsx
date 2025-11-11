@@ -11,6 +11,9 @@ import MilkCollections from './pages/MilkCollections.jsx';
 import Payments from './pages/Payments.jsx';
 import Expenses from './pages/Expenses.jsx';
 import Reports from './pages/Reports.jsx';
+import Notifications from './pages/Notifications.jsx';
+import Inventory from './pages/Inventory.jsx';
+import Settings from './pages/Settings.jsx';
 import Layout from './components/Layout.jsx';
 
 // Initialize auth state from localStorage on app load
@@ -86,6 +89,26 @@ const App = () => {
                 <ProtectedRoute requiredRole="ADMIN">
                   <Reports />
                 </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="inventory" 
+              element={
+                <ProtectedRoute requiredRole="ADMIN">
+                  <Inventory />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="notifications" 
+              element={
+                <Notifications />
+              } 
+            />
+            <Route 
+              path="settings" 
+              element={
+                <Settings />
               } 
             />
 
