@@ -1,6 +1,6 @@
 // FILE: src/api/users/users.controller.js
 
-import prisma from '../../config/prisma.js';
+import prisma from "../../config/prisma.js";
 
 /**
  * Get all users with optional role filtering
@@ -10,10 +10,10 @@ import prisma from '../../config/prisma.js';
 const getAllUsers = async (req, res) => {
   try {
     const { role, page = 1, limit = 10 } = req.query;
-    
+
     // Build where clause for filtering
     const where = {};
-    if (role && ['ADMIN', 'FARMER'].includes(role.toUpperCase())) {
+    if (role && ["ADMIN", "FARMER"].includes(role.toUpperCase())) {
       where.role = role.toUpperCase();
     }
 
@@ -31,13 +31,13 @@ const getAllUsers = async (req, res) => {
           email: true,
           phone: true,
           role: true,
-          createdAt: true
+          createdAt: true,
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
         skip,
-        take
+        take,
       }),
-      prisma.user.count({ where })
+      prisma.user.count({ where }),
     ]);
 
     const totalPages = Math.ceil(totalCount / take);
@@ -49,13 +49,12 @@ const getAllUsers = async (req, res) => {
         totalPages,
         totalCount,
         hasNextPage: parseInt(page) < totalPages,
-        hasPrevPage: parseInt(page) > 1
-      }
+        hasPrevPage: parseInt(page) > 1,
+      },
     });
-
   } catch (error) {
-    console.error('Get all users error:', error);
-    res.status(500).json({ error: 'Failed to fetch users' });
+    console.error("Get all users error:", error);
+    res.status(500).json({ error: "Failed to fetch users" });
   }
 };
 
@@ -76,20 +75,19 @@ const getCurrentUser = async (req, res) => {
         createdAt: true,
         _count: {
           milkCollections: true,
-          payments: true
-        }
-      }
+          payments: true,
+        },
+      },
     });
 
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: "User not found" });
     }
 
     res.json({ user });
-
   } catch (error) {
-    console.error('Get current user error:', error);
-    res.status(500).json({ error: 'Failed to fetch user profile' });
+    console.error("Get current user error:", error);
+    res.status(500).json({ error: "Failed to fetch user profile" });
   }
 };
 
@@ -112,20 +110,19 @@ const getUserById = async (req, res) => {
         createdAt: true,
         _count: {
           milkCollections: true,
-          payments: true
-        }
-      }
+          payments: true,
+        },
+      },
     });
 
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: "User not found" });
     }
 
     res.json({ user });
-
   } catch (error) {
-    console.error('Get user by ID error:', error);
-    res.status(500).json({ error: 'Failed to fetch user' });
+    console.error("Get user by ID error:", error);
+    res.status(500).json({ error: "Failed to fetch user" });
   }
 };
 
@@ -141,7 +138,7 @@ const getUserMilkCollections = async (req, res) => {
 
     // Build where clause for filtering
     const where = { userId };
-    
+
     if (startDate || endDate) {
       where.createdAt = {};
       if (startDate) {
@@ -160,24 +157,24 @@ const getUserMilkCollections = async (req, res) => {
     const [milkCollections, totalCount] = await Promise.all([
       prisma.milkCollection.findMany({
         where,
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
         skip,
-        take
+        take,
       }),
-      prisma.milkCollection.count({ where })
+      prisma.milkCollection.count({ where }),
     ]);
 
     // Calculate summary statistics
     const summary = await prisma.milkCollection.aggregate({
       where,
       _sum: {
-        quantity: true
+        quantity: true,
       },
       _avg: {
         fatPercentage: true,
-        snf: true
+        snf: true,
       },
-      _count: true
+      _count: true,
     });
 
     const totalPages = Math.ceil(totalCount / take);
@@ -188,20 +185,19 @@ const getUserMilkCollections = async (req, res) => {
         totalQuantity: summary._sum.quantity || 0,
         averageFat: summary._avg.fatPercentage || 0,
         averageSnf: summary._avg.snf || 0,
-        totalRecords: summary._count
+        totalRecords: summary._count,
       },
       pagination: {
         currentPage: parseInt(page),
         totalPages,
         totalCount,
         hasNextPage: parseInt(page) < totalPages,
-        hasPrevPage: parseInt(page) > 1
-      }
+        hasPrevPage: parseInt(page) > 1,
+      },
     });
-
   } catch (error) {
-    console.error('Get user milk collections error:', error);
-    res.status(500).json({ error: 'Failed to fetch milk collections' });
+    console.error("Get user milk collections error:", error);
+    res.status(500).json({ error: "Failed to fetch milk collections" });
   }
 };
 
@@ -217,8 +213,8 @@ const getUserPayments = async (req, res) => {
 
     // Build where clause for filtering
     const where = { userId };
-    
-    if (status && ['PENDING', 'PAID'].includes(status.toUpperCase())) {
+
+    if (status && ["PENDING", "PAID"].includes(status.toUpperCase())) {
       where.status = status.toUpperCase();
     }
 
@@ -230,29 +226,29 @@ const getUserPayments = async (req, res) => {
     const [payments, totalCount] = await Promise.all([
       prisma.payment.findMany({
         where,
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
         skip,
-        take
+        take,
       }),
-      prisma.payment.count({ where })
+      prisma.payment.count({ where }),
     ]);
 
     // Calculate summary statistics
     const summary = await prisma.payment.aggregate({
       where,
       _sum: {
-        amount: true
+        amount: true,
       },
-      _count: true
+      _count: true,
     });
 
     const statusSummary = await prisma.payment.groupBy({
-      by: ['status'],
+      by: ["status"],
       where: { userId },
       _sum: {
-        amount: true
+        amount: true,
       },
-      _count: true
+      _count: true,
     });
 
     const totalPages = Math.ceil(totalCount / take);
@@ -265,23 +261,111 @@ const getUserPayments = async (req, res) => {
         statusBreakdown: statusSummary.reduce((acc, item) => {
           acc[item.status] = {
             count: item._count,
-            amount: item._sum.amount || 0
+            amount: item._sum.amount || 0,
           };
           return acc;
-        }, {})
+        }, {}),
       },
       pagination: {
         currentPage: parseInt(page),
         totalPages,
         totalCount,
         hasNextPage: parseInt(page) < totalPages,
-        hasPrevPage: parseInt(page) > 1
-      }
+        hasPrevPage: parseInt(page) > 1,
+      },
+    });
+  } catch (error) {
+    console.error("Get user payments error:", error);
+    res.status(500).json({ error: "Failed to fetch payment history" });
+  }
+};
+
+/**
+ * Create a new user (Admin only - does NOT issue JWT token)
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const createUser = async (req, res) => {
+  try {
+    const { name, email, password, phone, role } = req.body;
+
+    // Validate required fields
+    if (!name || !email || !password) {
+      return res.status(400).json({
+        error: "Name, email, and password are required",
+      });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: "Invalid email format" });
+    }
+
+    // Validate password strength
+    if (password.length < 6) {
+      return res.status(400).json({
+        error: "Password must be at least 6 characters long",
+      });
+    }
+
+    // Validate role if provided
+    const validRoles = ["ADMIN", "FARMER"];
+    const userRole = role && validRoles.includes(role) ? role : "FARMER";
+
+    console.log(
+      "📝 CreateUser (Admin) - Requested role:",
+      role,
+      "| Assigned role:",
+      userRole
+    );
+
+    // Check if email is already taken
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
     });
 
+    if (existingUser) {
+      return res.status(400).json({
+        error: "Email already registered",
+      });
+    }
+
+    // Hash password
+    const { default: bcrypt } = await import("bcryptjs");
+    const saltRounds = parseInt(process.env.BCRYPT_ROUNDS) || 12;
+    const hashedPassword = await bcrypt.hash(password, saltRounds); // Added await here
+
+    // Create user
+    const user = await prisma.user.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+        phone: phone || null,
+        role: userRole,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        role: true,
+        createdAt: true,
+      },
+    });
+
+    console.log("✅ User created successfully by admin - Role:", user.role);
+
+    // NOTE: We do NOT issue a JWT token here because the admin is already logged in
+    // This prevents overwriting the admin's session
+    res.status(201).json({
+      message: "User created successfully",
+      user: user,
+    });
   } catch (error) {
-    console.error('Get user payments error:', error);
-    res.status(500).json({ error: 'Failed to fetch payment history' });
+    console.error("Create user error:", error);
+    res.status(500).json({ error: "Failed to create user" });
   }
 };
 
@@ -297,21 +381,21 @@ const updateUser = async (req, res) => {
 
     // Check if user exists
     const existingUser = await prisma.user.findUnique({
-      where: { id }
+      where: { id },
     });
 
     if (!existingUser) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: "User not found" });
     }
 
     // Check if email is already taken by another user
     if (email && email !== existingUser.email) {
       const emailExists = await prisma.user.findUnique({
-        where: { email }
+        where: { email },
       });
 
       if (emailExists) {
-        return res.status(400).json({ error: 'Email already in use' });
+        return res.status(400).json({ error: "Email already in use" });
       }
     }
 
@@ -331,18 +415,17 @@ const updateUser = async (req, res) => {
         email: true,
         phone: true,
         role: true,
-        createdAt: true
-      }
+        createdAt: true,
+      },
     });
 
-    res.json({ 
-      message: 'User updated successfully',
-      user: updatedUser 
+    res.json({
+      message: "User updated successfully",
+      user: updatedUser,
     });
-
   } catch (error) {
-    console.error('Update user error:', error);
-    res.status(500).json({ error: 'Failed to update user' });
+    console.error("Update user error:", error);
+    res.status(500).json({ error: "Failed to update user" });
   }
 };
 
@@ -363,41 +446,42 @@ const deleteUser = async (req, res) => {
           select: {
             milkCollections: true,
             payments: true,
-            expenses: true
-          }
-        }
-      }
+            expenses: true,
+          },
+        },
+      },
     });
 
     if (!existingUser) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: "User not found" });
     }
 
     // Prevent deleting user with existing records (optional - you can modify this logic)
-    const hasRecords = existingUser._count.milkCollections > 0 || 
-                       existingUser._count.payments > 0 || 
-                       existingUser._count.expenses > 0;
+    const hasRecords =
+      existingUser._count.milkCollections > 0 ||
+      existingUser._count.payments > 0 ||
+      existingUser._count.expenses > 0;
 
     if (hasRecords) {
-      return res.status(400).json({ 
-        error: 'Cannot delete user with existing milk collections, payments, or expenses. Please delete associated records first.',
-        details: existingUser._count
+      return res.status(400).json({
+        error:
+          "Cannot delete user with existing milk collections, payments, or expenses. Please delete associated records first.",
+        details: existingUser._count,
       });
     }
 
     // Delete user
     await prisma.user.delete({
-      where: { id }
+      where: { id },
     });
 
-    res.json({ 
-      message: 'User deleted successfully',
-      deletedUserId: id 
+    res.json({
+      message: "User deleted successfully",
+      deletedUserId: id,
     });
-
   } catch (error) {
-    console.error('Delete user error:', error);
-    res.status(500).json({ error: 'Failed to delete user' });
+    console.error("Delete user error:", error);
+    res.status(500).json({ error: "Failed to delete user" });
   }
 };
 
@@ -405,8 +489,9 @@ export {
   getAllUsers,
   getCurrentUser,
   getUserById,
+  createUser,
   getUserMilkCollections,
   getUserPayments,
   updateUser,
-  deleteUser
+  deleteUser,
 };

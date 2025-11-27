@@ -20,9 +20,9 @@ export const userAPI = {
     return response.data;
   },
 
-  // Create new user (uses register endpoint from auth)
+  // Create new user (Admin only - does not issue JWT token)
   createUser: async (userData) => {
-    const response = await apiClient.post('/auth/register', userData);
+    const response = await apiClient.post('/users', userData);
     return response.data;
   },
 

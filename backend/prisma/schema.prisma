@@ -43,7 +43,7 @@ model MilkCollection {
   isBilled      Boolean  @default(false)
   createdAt     DateTime @default(now())
   
-  user     User   @relation(fields: [userId], references: [id])
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId   String
 }
 
@@ -55,7 +55,7 @@ model Payment {
   status          PaymentStatus @default(PENDING)
   createdAt       DateTime      @default(now())
 
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id],onDelete: Cascade)
   userId String
 }
 
@@ -66,6 +66,6 @@ model Expense {
   category    String?
   date        DateTime @default(now())
 
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id],onDelete: Cascade)
   userId String
 }

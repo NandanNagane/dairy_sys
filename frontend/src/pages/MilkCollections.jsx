@@ -25,18 +25,20 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { milkCollectionAPI } from '../services/milkCollectionService';
+import { userAPI } from '../services/userService';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 
 const MilkCollections = () => {
   const { user } = useAuthStore();
+  
   const isAdmin = user?.role === 'ADMIN';
   const isFarmer = user?.role === 'FARMER';
 
   const [collections, setCollections] = React.useState([]);
   const [summary, setSummary] = React.useState(null);
   const [pagination, setPagination] = React.useState(null);
-  const [loading, setLoading] = React.useState(true);
+  const [loading, setLoading] = React.useState(false);
   const [currentPage, setCurrentPage] = React.useState(1);
   const [filters, setFilters] = React.useState({
     userId: isFarmer ? user?.id : undefined,
@@ -50,12 +52,24 @@ const MilkCollections = () => {
     setLoading(true);
     try {
       const params = {
-        ...filters,
         page: currentPage,
-        userId: isFarmer ? user?.id : filters.userId
+        limit: filters.limit,
+        sortBy: filters.sortBy,
+        sortOrder: filters.sortOrder
       };
 
-      const response = await milkCollectionAPI.getAllMilkCollections(params);
+      let response;
+      
+      if (isFarmer) {
+        // Farmers use the user-specific endpoint
+        response = await userAPI.getUserMilkCollections(user.id, params);
+      } else {
+        // Admins use the general endpoint with optional userId filter
+        if (filters.userId) {
+          params.userId = filters.userId;
+        }
+        response = await milkCollectionAPI.getAllMilkCollections(params);
+      }
       
       setCollections(response.milkCollections || []);
       setSummary(response.summary || {});

@@ -62,14 +62,18 @@ const authenticateToken = async (req, res, next) => {
  * @param {Function} next - Express next function
  */
 const requireAdmin = (req, res, next) => {
+  console.log('🔐 RequireAdmin - req.user:', JSON.stringify(req.user, null, 2));
+  
   if (!req.user) {
     return res.status(401).json({ error: 'Authentication required' });
   }
   
   if (req.user.role !== 'ADMIN') {
+    console.log(`❌ RequireAdmin - Access denied. User role: ${req.user.role}, Expected: ADMIN`);
     return res.status(403).json({ error: 'Admin access required' });
   }
   
+  console.log('✅ RequireAdmin - Access granted');
   next();
 };
 

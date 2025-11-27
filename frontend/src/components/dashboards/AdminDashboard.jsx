@@ -36,7 +36,7 @@ import {
 } from 'lucide-react'
 
 const AdminDashboard = () => {
-  const [loading, setLoading] = React.useState(true)
+  const [loading, setLoading] = React.useState(false)
   const [dashboardData, setDashboardData] = React.useState(null)
   const [dialogOpen, setDialogOpen] = React.useState(false)
   const [addFarmerDialogOpen, setAddFarmerDialogOpen] = React.useState(false)
@@ -137,6 +137,20 @@ const AdminDashboard = () => {
             </CardContent>
           </Card>
         ))}
+      </div>
+    )
+  }
+
+  // Handle case where data failed to load
+  if (!dashboardData) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <AlertTriangle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <h2 className="text-xl font-semibold mb-2">Failed to load dashboard</h2>
+          <p className="text-muted-foreground mb-4">Unable to fetch dashboard data</p>
+          <Button onClick={fetchDashboardData}>Try Again</Button>
+        </div>
       </div>
     )
   }

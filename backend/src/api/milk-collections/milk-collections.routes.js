@@ -16,7 +16,7 @@ router.post('/', authenticateToken, requireAdmin, milkCollectionsController.crea
 /**
  * @route   GET /api/v1/milk-collections
  * @desc    Get all milk collections with filtering options
- * @access  Admin only
+ * @access  Admin only (for all collections) or Farmers (for their own via /users/:userId/milk-collections)
  */
 router.get('/', authenticateToken, requireAdmin, milkCollectionsController.getAllMilkCollections);
 

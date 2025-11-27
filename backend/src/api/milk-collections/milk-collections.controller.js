@@ -121,6 +121,9 @@ const getAllMilkCollections = async (req, res) => {
       sortOrder = 'desc'
     } = req.query;
 
+
+    
+
     // Build where clause for filtering
     const where = {};
     
@@ -221,7 +224,8 @@ const getAllMilkCollections = async (req, res) => {
 const getMilkCollectionById = async (req, res) => {
   try {
     const { id } = req.params;
-
+    console.log(id);
+    
     const milkCollection = await prisma.milkCollection.findUnique({
       where: { id },
       include: {

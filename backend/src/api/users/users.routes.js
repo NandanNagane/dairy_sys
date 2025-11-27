@@ -14,6 +14,13 @@ const router = express.Router();
 router.get('/', authenticateToken, requireAdmin, usersController.getAllUsers);
 
 /**
+ * @route   POST /api/v1/users
+ * @desc    Create a new user (does not issue JWT token)
+ * @access  Admin only
+ */
+router.post('/', authenticateToken, requireAdmin, usersController.createUser);
+
+/**
  * @route   GET /api/v1/users/me
  * @desc    Get current user's profile
  * @access  Authenticated users

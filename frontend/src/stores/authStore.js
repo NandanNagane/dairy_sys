@@ -9,7 +9,7 @@ export const useAuthStore = create(
       // State
       user: null,
       token: null,
-      isAuthenticated: false,    //. here we changed and made it true by default
+      isAuthenticated: false,    
       isLoading: false,
       error: null,
      
@@ -23,6 +23,9 @@ export const useAuthStore = create(
 
       // Token is stored in HTTP-only cookie by backend
       // Only store user data in state (not localStorage for security)
+      console.log('✅ Login successful - User data:', data.user);
+      console.log('🔍 User role from backend:', data.user.role);
+      
       set({
         user: data.user,
         token: null, // Don't store token in state, rely on cookie
