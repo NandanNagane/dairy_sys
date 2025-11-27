@@ -6,6 +6,7 @@ import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
+import AddFarmerDialog from '../components/forms/AddFarmerDialog';
 import {
   Dialog,
   DialogContent,
@@ -25,13 +26,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '../components/ui/alert-dialog';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../components/ui/select';
 import { 
   Users as UsersIcon, 
   Plus, 
@@ -54,14 +48,12 @@ const Users = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [roleFilter, setRoleFilter] = useState('all');
 
-  // Form states
+  // Form states (only for edit dialog)
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
-    password: '',
     role: 'FARMER'
   });
 
@@ -71,23 +63,22 @@ const Users = () => {
 
   const loadUsers = async () => {
     try {
-      await fetchUsers({ role: roleFilter === 'all' ? undefined : roleFilter });
+      await fetchUsers({ role: 'FARMER' });
     } catch (error) {
       toast.error('Failed to load users');
     }
   };
 
-  const handleAddUser = async () => {
+  const handleAddUser = async (formData) => {
     try {
       if (!formData.name || !formData.email || !formData.password) {
         toast.error('Please fill in all required fields');
         return;
       }
 
-      await createUser(formData);
+      await createUser({ ...formData, role: 'FARMER' });
       toast.success('User created successfully');
       setAddDialogOpen(false);
-      setFormData({ name: '', email: '', phone: '', password: '', role: 'FARMER' });
       loadUsers();
     } catch (error) {
       toast.error(error.response?.data?.error || 'Failed to create user');
@@ -111,7 +102,7 @@ const Users = () => {
       toast.success('User updated successfully');
       setEditDialogOpen(false);
       setSelectedUser(null);
-      setFormData({ name: '', email: '', phone: '', password: '', role: 'FARMER' });
+      setFormData({ name: '', email: '', phone: '', role: 'FARMER' });
       loadUsers();
     } catch (error) {
       toast.error(error.response?.data?.error || 'Failed to update user');
@@ -136,8 +127,7 @@ const Users = () => {
       name: user.name,
       email: user.email,
       phone: user.phone || '',
-      role: user.role,
-      password: '' // Don't populate password for security
+      role: user.role
     });
     setEditDialogOpen(true);
   };
@@ -153,8 +143,7 @@ const Users = () => {
     const matchesSearch = (user.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
                          (user.email || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
                          (user.phone || '').toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesRole = roleFilter === 'all' || user.role === roleFilter;
-    return matchesSearch && matchesRole;
+    return matchesSearch;
   });
 
   return (
@@ -168,100 +157,32 @@ const Users = () => {
             </p>
           </div>
           
-          <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
-            <DialogTrigger asChild>
+          <AddFarmerDialog
+            trigger={
               <Button>
                 <UserPlus className="mr-2 h-4 w-4" />
                 Add Farmer
               </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Add New Farmer</DialogTitle>
-                <DialogDescription>
-                  Create a new farmer account. They will be able to log in with these credentials.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="name">Name *</Label>
-                  <Input
-                    id="name"
-                    placeholder="John Doe"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="email">Email *</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="john@example.com"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="phone">Phone Number</Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    placeholder="+1 (555) 123-4567"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="password">Password *</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setAddDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleAddUser} disabled={isLoading}>
-                  {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Create Farmer
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+            }
+            open={addDialogOpen}
+            onOpenChange={setAddDialogOpen}
+            onSubmit={handleAddUser}
+            isSubmitting={isLoading}
+          />
         </div>
       </div>
 
       {/* Filters */}
       <Card>
         <CardContent className="pt-6">
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  placeholder="Search by name or email..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9"
-                />
-              </div>
-            </div>
-            <Select value={roleFilter} onValueChange={setRoleFilter}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Filter by role" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Roles</SelectItem>
-                <SelectItem value="FARMER">Farmers</SelectItem>
-                <SelectItem value="ADMIN">Admins</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Search by name, email, or phone..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9"
+            />
           </div>
         </CardContent>
       </Card>

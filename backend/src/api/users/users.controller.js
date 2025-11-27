@@ -9,12 +9,14 @@ import prisma from "../../config/prisma.js";
  */
 const getAllUsers = async (req, res) => {
   try {
-    const { role, page = 1, limit = 10 } = req.query;
+    const { role = 'FARMER', page = 1, limit = 10 } = req.query;
 
-    // Build where clause for filtering
+    // Build where clause for filtering - default to FARMER role
     const where = {};
     if (role && ["ADMIN", "FARMER"].includes(role.toUpperCase())) {
       where.role = role.toUpperCase();
+    } else {
+      where.role = 'FARMER'; // Default to FARMER if invalid role
     }
 
     // Calculate pagination

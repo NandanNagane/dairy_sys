@@ -33,6 +33,8 @@ model User {
   milkCollections MilkCollection[]
   payments        Payment[]
   expenses        Expense[]
+  
+  @@index([role, createdAt])
 }
 
 model MilkCollection {

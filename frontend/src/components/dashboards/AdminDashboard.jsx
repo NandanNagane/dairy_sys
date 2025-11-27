@@ -17,6 +17,7 @@ import {
   DialogTrigger,
 } from '../ui/dialog'
 import MilkCollectionForm from '../forms/MilkCollectionForm'
+import AddFarmerDialog from '../forms/AddFarmerDialog'
 import { milkCollectionAPI } from '../../services/milkCollectionService'
 import { userAPI } from '../../services/userService'
 import { reportAPI } from '../../services/reportService'
@@ -41,12 +42,6 @@ const AdminDashboard = () => {
   const [dialogOpen, setDialogOpen] = React.useState(false)
   const [addFarmerDialogOpen, setAddFarmerDialogOpen] = React.useState(false)
   const [isSubmitting, setIsSubmitting] = React.useState(false)
-  const [formData, setFormData] = React.useState({
-    name: '',
-    email: '',
-    phone: '',
-    password: ''
-  })
 
   React.useEffect(() => {
     fetchDashboardData()
@@ -97,7 +92,7 @@ const AdminDashboard = () => {
     }
   }
 
-  const handleAddFarmer = async () => {
+  const handleAddFarmer = async (formData) => {
     // Validation
     if (!formData.name || !formData.email || !formData.password) {
       toast.error('Please fill in all required fields')
@@ -112,7 +107,6 @@ const AdminDashboard = () => {
       })
       toast.success('Farmer added successfully!')
       setAddFarmerDialogOpen(false)
-      setFormData({ name: '', email: '', phone: '', password: '' })
       
       // Refresh dashboard data to update farmer count
       fetchDashboardData()
@@ -266,79 +260,19 @@ const AdminDashboard = () => {
             </Button>
             
             {/* Add Farmer Dialog */}
-            <Dialog open={addFarmerDialogOpen} onOpenChange={setAddFarmerDialogOpen}>
-              <DialogTrigger asChild>
+            <AddFarmerDialog
+              trigger={
                 <Button className="h-auto py-4 flex flex-col items-start" variant="outline">
                   <Users className="h-6 w-6 mb-2" />
                   <span className="font-semibold">Add Farmer</span>
                   <span className="text-xs text-muted-foreground">Register new farmer</span>
                 </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Add New Farmer</DialogTitle>
-                  <DialogDescription>
-                    Create a new farmer account. They will be able to log in with these credentials.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="farmer-name">Name *</Label>
-                    <Input
-                      id="farmer-name"
-                      placeholder="John Doe"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="farmer-email">Email *</Label>
-                    <Input
-                      id="farmer-email"
-                      type="email"
-                      placeholder="john@example.com"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="farmer-phone">Phone Number</Label>
-                    <Input
-                      id="farmer-phone"
-                      type="tel"
-                      placeholder="+1 (555) 123-4567"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="farmer-password">Password *</Label>
-                    <Input
-                      id="farmer-password"
-                      type="password"
-                      placeholder="••••••••"
-                      value={formData.password}
-                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button 
-                    variant="outline" 
-                    onClick={() => {
-                      setAddFarmerDialogOpen(false)
-                      setFormData({ name: '', email: '', phone: '', password: '' })
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                  <Button onClick={handleAddFarmer} disabled={isSubmitting}>
-                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Create Farmer
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+              }
+              open={addFarmerDialogOpen}
+              onOpenChange={setAddFarmerDialogOpen}
+              onSubmit={handleAddFarmer}
+              isSubmitting={isSubmitting}
+            />
           </div>
         </CardContent>
       </Card>

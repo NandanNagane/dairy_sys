@@ -26,6 +26,8 @@ import {
   Phone,
   MapPin,
   Building,
+  Eye,
+  EyeOff,
 } from 'lucide-react'
 import { useAuthStore } from '../stores/authStore'
 import { toast } from '../hooks/use-toast'
@@ -33,6 +35,9 @@ import { toast } from '../hooks/use-toast'
 const Settings = () => {
   const { user, isAdmin } = useAuthStore()
   const [loading, setLoading] = React.useState(false)
+  const [showCurrentPassword, setShowCurrentPassword] = React.useState(false)
+  const [showNewPassword, setShowNewPassword] = React.useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = React.useState(false)
 
   // Profile settings state
   const [profile, setProfile] = React.useState({
@@ -353,10 +358,23 @@ const Settings = () => {
                       <Key className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
                         id="currentPassword"
-                        type="password"
-                        className="pl-10"
+                        type={showCurrentPassword ? 'text' : 'password'}
+                        className="pl-10 pr-10"
                         required
                       />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                      >
+                        {showCurrentPassword ? (
+                          <EyeOff className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </Button>
                     </div>
                   </div>
 
@@ -366,10 +384,23 @@ const Settings = () => {
                       <Key className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
                         id="newPassword"
-                        type="password"
-                        className="pl-10"
+                        type={showNewPassword ? 'text' : 'password'}
+                        className="pl-10 pr-10"
                         required
                       />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                        onClick={() => setShowNewPassword(!showNewPassword)}
+                      >
+                        {showNewPassword ? (
+                          <EyeOff className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </Button>
                     </div>
                     <p className="text-xs text-muted-foreground">
                       Password must be at least 8 characters long
@@ -382,10 +413,23 @@ const Settings = () => {
                       <Key className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
                         id="confirmPassword"
-                        type="password"
-                        className="pl-10"
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        className="pl-10 pr-10"
                         required
                       />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      >
+                        {showConfirmPassword ? (
+                          <EyeOff className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </Button>
                     </div>
                   </div>
                 </div>
