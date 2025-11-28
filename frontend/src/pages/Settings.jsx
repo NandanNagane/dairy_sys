@@ -30,7 +30,7 @@ import {
   EyeOff,
 } from 'lucide-react'
 import { useAuthStore } from '../stores/authStore'
-import { toast } from '../hooks/use-toast'
+import { useToast } from '../hooks/use-toast'
 
 const Settings = () => {
   const { user, isAdmin } = useAuthStore()
@@ -38,6 +38,7 @@ const Settings = () => {
   const [showCurrentPassword, setShowCurrentPassword] = React.useState(false)
   const [showNewPassword, setShowNewPassword] = React.useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false)
+  const {toast} = useToast()
 
   // Profile settings state
   const [profile, setProfile] = React.useState({
@@ -77,17 +78,9 @@ const Settings = () => {
     try {
       // TODO: API call to update profile
       await new Promise(resolve => setTimeout(resolve, 1000))
-      toast({
-        title: 'Profile Updated',
-        description: 'Your profile has been updated successfully.',
-        variant: 'success',
-      })
+      toast.success('Profile updated successfully!')
     } catch (error) {
-      toast({
-        title: 'Update Failed',
-        description: 'Failed to update profile. Please try again.',
-        variant: 'destructive',
-      })
+      toast.error('Failed to update profile. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -99,18 +92,10 @@ const Settings = () => {
     try {
       // TODO: API call to change password
       await new Promise(resolve => setTimeout(resolve, 1000))
-      toast({
-        title: 'Password Changed',
-        description: 'Your password has been changed successfully.',
-        variant: 'success',
-      })
+      toast.success('Password changed successfully!')
       e.target.reset()
     } catch (error) {
-      toast({
-        title: 'Password Change Failed',
-        description: 'Failed to change password. Please try again.',
-        variant: 'destructive',
-      })
+      toast.error('Failed to change password. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -121,17 +106,9 @@ const Settings = () => {
     try {
       // TODO: API call to update notification preferences
       await new Promise(resolve => setTimeout(resolve, 1000))
-      toast({
-        title: 'Preferences Updated',
-        description: 'Your notification preferences have been updated.',
-        variant: 'success',
-      })
+      toast.success('Notification preferences updated successfully!')
     } catch (error) {
-      toast({
-        title: 'Update Failed',
-        description: 'Failed to update preferences. Please try again.',
-        variant: 'destructive',
-      })
+      toast.error('Failed to update preferences. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -142,17 +119,9 @@ const Settings = () => {
     try {
       // TODO: API call to update system preferences
       await new Promise(resolve => setTimeout(resolve, 1000))
-      toast({
-        title: 'Preferences Updated',
-        description: 'Your system preferences have been updated.',
-        variant: 'success',
-      })
+      toast.success('System preferences updated successfully!')
     } catch (error) {
-      toast({
-        title: 'Update Failed',
-        description: 'Failed to update preferences. Please try again.',
-        variant: 'destructive',
-      })
+      toast.error('Failed to update preferences. Please try again.')
     } finally {
       setLoading(false)
     }
