@@ -140,6 +140,8 @@ const Users = () => {
   // Filter users based on search query - with null checks
   const filteredUsers = (users || []).filter(user => {
     if (!user) return false;
+
+
     const matchesSearch = (user.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
                          (user.email || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
                          (user.phone || '').toLowerCase().includes(searchQuery.toLowerCase());

@@ -108,6 +108,7 @@ const MilkCollectionForm = ({ rateCard, onSubmit, onSaveAndNext }) => {
     try {
       console.log('📝 Form data received:', data)
       
+      //not yet implemented need to check duplicate before submit by making api call
       if (isDuplicate) {
         const confirmed = window.confirm(
           'A collection from this farmer already exists for this shift. Do you want to continue?'
@@ -274,7 +275,7 @@ const MilkCollectionForm = ({ rateCard, onSubmit, onSaveAndNext }) => {
           {/* Payout Estimate */}
           {payoutEstimate > 0 && (
             <Alert className="bg-green-50 border-green-200">
-              <DollarSign className="h-4 w-4 text-green-600" />
+              {/* <DollarSign className="h-4 w-4 text-green-600" /> */}
               <AlertDescription className="text-green-900">
                 <div className="flex items-center justify-between">
                   <span>Estimated Payout:</span>

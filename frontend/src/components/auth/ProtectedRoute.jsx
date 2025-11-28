@@ -5,11 +5,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 export const ProtectedRoute = ({ children, requiredRole = null }) => {
   const { isAuthenticated, user, isLoading } = useAuthStore();
   const location = useLocation();
-    console.log(isAuthenticated);
-    
-
-  
-
+   
   // Show loading while checking authentication
   if (isLoading) {
     return (
