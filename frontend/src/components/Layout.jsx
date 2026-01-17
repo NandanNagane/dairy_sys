@@ -227,7 +227,7 @@ const Layout = () => {
                     {user?.firstName} {user?.lastName}
                   </p>
                   <Badge variant="outline" className="mt-0.5">
-                    {user?.role}
+                    {user?.name}
                   </Badge>
                 </div>
               </div>
