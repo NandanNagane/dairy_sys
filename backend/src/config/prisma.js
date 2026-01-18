@@ -1,10 +1,8 @@
+
+
 // FILE: src/config/prisma.js
-// Singleton Prisma Client to avoid multiple instances
-// Configured for Neon serverless PostgreSQL
-
+// Singleton Prisma Client optimized for Neon serverless PostgreSQL
 import { PrismaClient } from '@prisma/client';
-
-let prisma;
 
 const prismaClientConfig = {
   log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
@@ -15,15 +13,16 @@ const prismaClientConfig = {
   },
 };
 
-if (process.env.NODE_ENV === 'production') {
-  prisma = new PrismaClient(prismaClientConfig);
-} else {
-  // In development, use a global variable to prevent multiple instances during hot-reload
-  if (!global.prisma) {
-    global.prisma = new PrismaClient(prismaClientConfig);
-  }
-  prisma = global.prisma;
-}
+// Lazy singleton pattern - creates connection only when needed
+const prismaClientSingleton = () => {
+  return new PrismaClient(prismaClientConfig);
+};
+
+const globalForPrisma = globalThis;
+
+const prisma = globalForPrisma.prisma ?? prismaClientSingleton();
+
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 // Graceful shutdown handler
 const gracefulShutdown = async () => {
@@ -36,12 +35,9 @@ const gracefulShutdown = async () => {
   }
 };
 
-// Handle process termination signals
 process.on('SIGINT', gracefulShutdown);
 process.on('SIGTERM', gracefulShutdown);
-process.on('beforeExit', gracefulShutdown);
 
-// Connection health check helper
 export const checkConnection = async () => {
   try {
     await prisma.$queryRaw`SELECT 1`;

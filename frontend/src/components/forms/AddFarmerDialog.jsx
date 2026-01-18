@@ -30,6 +30,7 @@ const AddFarmerDialog = ({
   });
 
   const handleSubmit = async () => {
+    
     await onSubmit(formData);
     // Reset form after successful submission
     setFormData({ name: '', email: '', phone: '', password: '' });
@@ -113,7 +114,7 @@ const AddFarmerDialog = ({
           <Button variant="outline" onClick={handleCancel}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={isSubmitting}>
+          <Button type="button" onClick={handleSubmit} disabled={isSubmitting}>
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Create Farmer
           </Button>

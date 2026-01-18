@@ -215,7 +215,7 @@ export const usePaymentStore = create((set, get) => ({
   },
 
   // Utility functions
-  getPaymentById: (paymentId) => {
+  getLocalPaymentById: (paymentId) => {
     const { payments } = get();
     return payments.find((payment) => payment.id === paymentId);
   },

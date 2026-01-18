@@ -1,12 +1,12 @@
-import React from 'react'
-import { useAuthStore } from '../../stores/authStore'
-import { KPICard } from '../ui/kpi-card'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
-import { Badge } from '../ui/badge'
-import { Button } from '../ui/button'
-import { Skeleton } from '../ui/skeleton'
-import { Input } from '../ui/input'
-import { Label } from '../ui/label'
+import React from "react";
+import { useAuthStore } from "../../stores/authStore";
+import { KPICard } from "../ui/kpi-card";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
+import { Skeleton } from "../ui/skeleton";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
 import {
   Dialog,
   DialogContent,
@@ -15,17 +15,17 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '../ui/dialog'
-import MilkCollectionForm from '../forms/MilkCollectionForm'
-import AddFarmerDialog from '../forms/AddFarmerDialog'
-import { milkCollectionAPI } from '../../services/milkCollectionService'
-import { userAPI } from '../../services/userService'
-import { reportAPI } from '../../services/reportService'
-import { toast } from 'sonner'
-import { 
-  Milk, 
-  DollarSign, 
-  TrendingUp, 
+} from "../ui/dialog";
+import MilkCollectionForm from "../forms/MilkCollectionForm";
+import AddFarmerDialog from "../forms/AddFarmerDialog";
+import { milkCollectionAPI } from "../../services/milkCollectionService";
+import { userAPI } from "../../services/userService";
+import { reportAPI } from "../../services/reportService";
+import { toast } from "sonner";
+import {
+  Milk,
+  DollarSign,
+  TrendingUp,
   AlertTriangle,
   Droplets,
   Package,
@@ -33,25 +33,21 @@ import {
   Users,
   Calendar,
   Clock,
-  Loader2
-} from 'lucide-react'
+  Loader2,
+} from "lucide-react";
 
 const AdminDashboard = () => {
-  const [loading, setLoading] = React.useState(false)
-  const [dashboardData, setDashboardData] = React.useState(null)
-  const [dialogOpen, setDialogOpen] = React.useState(false)
-  const [addFarmerDialogOpen, setAddFarmerDialogOpen] = React.useState(false)
-  const [isSubmitting, setIsSubmitting] = React.useState(false)
-
-  React.useEffect(() => {
-    fetchDashboardData()
-  }, [])
+  const [loading, setLoading] = React.useState(false);
+  const [dashboardData, setDashboardData] = React.useState(null);
+  const [dialogOpen, setDialogOpen] = React.useState(false);
+  const [addFarmerDialogOpen, setAddFarmerDialogOpen] = React.useState(false);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const fetchDashboardData = async () => {
     try {
-      setLoading(true)
-      const stats = await reportAPI.getDashboardStats()
-      
+      setLoading(true);
+      const stats = await reportAPI.getDashboardStats();
+
       setDashboardData({
         totalMilk: stats.totalMilkToday,
         percentageChange: stats.percentageChange,
@@ -64,64 +60,70 @@ const AdminDashboard = () => {
         deviceStatus: { online: 8, offline: 2 },
         alerts: 5,
         todayCollections: stats.totalMilkToday,
-        activeDevices: 8
-      })
+        activeDevices: 8,
+      });
     } catch (error) {
-      console.error('❌ Failed to fetch dashboard data:', error)
-      toast.error('Failed to load dashboard data')
+      console.error("❌ Failed to fetch dashboard data:", error);
+      toast.error("Failed to load dashboard data");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
+
+  React.useEffect(() => {
+    fetchDashboardData();
+  }, []);
 
   const handleMilkCollectionSubmit = async (data) => {
     try {
-      console.log('📥 AdminDashboard received data:', data)
-      
+      console.log("📥 AdminDashboard received data:", data);
+
       // Data is already properly formatted from the form
-      await milkCollectionAPI.createMilkCollection(data)
-      toast.success('Milk collection recorded successfully!')
-      setDialogOpen(false)
-      
+      await milkCollectionAPI.createMilkCollection(data);
+      toast.success("Milk collection recorded successfully!");
+      setDialogOpen(false);
+
       // Refresh dashboard data
-      fetchDashboardData()
+      fetchDashboardData();
     } catch (error) {
-      console.error('❌ Failed to record milk collection:', error)
-      toast.error(error.response?.data?.error || 'Failed to record milk collection')
-      throw error
+      console.error("❌ Failed to record milk collection:", error);
+      toast.error(
+        error.response?.data?.error || "Failed to record milk collection"
+      );
+      throw error;
     }
-  }
+  };
 
   const handleAddFarmer = async (formData) => {
     // Validation
     if (!formData.name || !formData.email || !formData.password) {
-      toast.error('Please fill in all required fields')
-      return
+      toast.error("Please fill in all required fields");
+      return;
     }
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
       await userAPI.createUser({
         ...formData,
-        role: 'FARMER'
-      })
-      toast.success('Farmer added successfully!')
-      setAddFarmerDialogOpen(false)
-      
+        role: "FARMER",
+      });
+      toast.success("Farmer added successfully!");
+      setAddFarmerDialogOpen(false);
+
       // Refresh dashboard data to update farmer count
-      fetchDashboardData()
+      fetchDashboardData();
     } catch (error) {
-      console.error('❌ Failed to add farmer:', error)
-      toast.error(error.response?.data?.error || 'Failed to add farmer')
+      console.error("❌ Failed to add farmer:", error);
+      toast.error(error.response?.data?.error || "Failed to add farmer");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   if (loading) {
     return (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {[1, 2, 3, 4].map(i => (
+        {[1, 2, 3, 4].map((i) => (
           <Card key={i}>
             <CardHeader>
               <Skeleton className="h-4 w-[200px]" />
@@ -132,7 +134,7 @@ const AdminDashboard = () => {
           </Card>
         ))}
       </div>
-    )
+    );
   }
 
   // Handle case where data failed to load
@@ -141,12 +143,16 @@ const AdminDashboard = () => {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <AlertTriangle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h2 className="text-xl font-semibold mb-2">Failed to load dashboard</h2>
-          <p className="text-muted-foreground mb-4">Unable to fetch dashboard data</p>
+          <h2 className="text-xl font-semibold mb-2">
+            Failed to load dashboard
+          </h2>
+          <p className="text-muted-foreground mb-4">
+            Unable to fetch dashboard data
+          </p>
           <Button onClick={fetchDashboardData}>Try Again</Button>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -173,9 +179,11 @@ const AdminDashboard = () => {
           value={dashboardData.totalMilk}
           unit="L"
           icon={Milk}
-          trend={dashboardData.percentageChange >= 0 ? 'up' : 'down'}
-          trendValue={`${dashboardData.percentageChange >= 0 ? '+' : ''}${dashboardData.percentageChange}% from yesterday`}
-          variant={dashboardData.percentageChange >= 0 ? 'success' : 'default'}
+          trend={dashboardData.percentageChange >= 0 ? "up" : "down"}
+          trendValue={`${dashboardData.percentageChange >= 0 ? "+" : ""}${
+            dashboardData.percentageChange
+          }% from yesterday`}
+          variant={dashboardData.percentageChange >= 0 ? "success" : "default"}
         />
         <KPICard
           title="Avg Fat Content"
@@ -195,9 +203,11 @@ const AdminDashboard = () => {
         />
         <KPICard
           title="Payout Due"
-          value={dashboardData.payoutDue >= 1000 
-            ? `₹${(dashboardData.payoutDue / 1000).toFixed(0)}k` 
-            : `₹${dashboardData.payoutDue}`}
+          value={
+            dashboardData.payoutDue >= 1000
+              ? `₹${(dashboardData.payoutDue / 1000).toFixed(0)}k`
+              : `₹${dashboardData.payoutDue}`
+          }
           icon={DollarSign}
           variant="warning"
         />
@@ -234,10 +244,15 @@ const AdminDashboard = () => {
             {/* Record Collection Dialog */}
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="h-auto py-4 flex flex-col items-start" variant="outline">
+                <Button
+                  className="h-auto py-4 flex flex-col items-start"
+                  variant="outline"
+                >
                   <Milk className="h-6 w-6 mb-2" />
                   <span className="font-semibold">Record Collection</span>
-                  <span className="text-xs text-muted-foreground">Add new milk entry</span>
+                  <span className="text-xs text-muted-foreground">
+                    Add new milk entry
+                  </span>
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
@@ -247,25 +262,33 @@ const AdminDashboard = () => {
                     Add a new milk collection entry for a farmer.
                   </DialogDescription>
                 </DialogHeader>
-                <MilkCollectionForm
-                  onSubmit={handleMilkCollectionSubmit}
-                />
+                <MilkCollectionForm onSubmit={handleMilkCollectionSubmit} />
               </DialogContent>
             </Dialog>
 
-            <Button className="h-auto py-4 flex flex-col items-start" variant="outline">
+            <Button
+              className="h-auto py-4 flex flex-col items-start"
+              variant="outline"
+            >
               <DollarSign className="h-6 w-6 mb-2" />
               <span className="font-semibold">Process Payout</span>
-              <span className="text-xs text-muted-foreground">Generate payments</span>
+              <span className="text-xs text-muted-foreground">
+                Generate payments
+              </span>
             </Button>
-            
+
             {/* Add Farmer Dialog */}
             <AddFarmerDialog
               trigger={
-                <Button className="h-auto py-4 flex flex-col items-start" variant="outline">
+                <Button
+                  className="h-auto py-4 flex flex-col items-start"
+                  variant="outline"
+                >
                   <Users className="h-6 w-6 mb-2" />
                   <span className="font-semibold">Add Farmer</span>
-                  <span className="text-xs text-muted-foreground">Register new farmer</span>
+                  <span className="text-xs text-muted-foreground">
+                    Register new farmer
+                  </span>
                 </Button>
               }
               open={addFarmerDialogOpen}
@@ -293,12 +316,16 @@ const AdminDashboard = () => {
                     </div>
                     <div>
                       <p className="text-sm font-medium">Farmer #{100 + i}</p>
-                      <p className="text-xs text-muted-foreground">Morning shift</p>
+                      <p className="text-xs text-muted-foreground">
+                        Morning shift
+                      </p>
                     </div>
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-semibold">25.5 L</p>
-                    <Badge variant="success" className="text-xs">Verified</Badge>
+                    <Badge variant="success" className="text-xs">
+                      Verified
+                    </Badge>
                   </div>
                 </div>
               ))}
@@ -319,21 +346,27 @@ const AdminDashboard = () => {
                 <AlertTriangle className="h-5 w-5 text-amber-500 mt-0.5" />
                 <div>
                   <p className="text-sm font-medium">Low feed stock</p>
-                  <p className="text-xs text-muted-foreground">Protein mix below minimum level</p>
+                  <p className="text-xs text-muted-foreground">
+                    Protein mix below minimum level
+                  </p>
                 </div>
               </div>
               <div className="flex items-start space-x-3">
                 <AlertTriangle className="h-5 w-5 text-red-500 mt-0.5" />
                 <div>
                   <p className="text-sm font-medium">Device offline</p>
-                  <p className="text-xs text-muted-foreground">Temperature sensor #3 not responding</p>
+                  <p className="text-xs text-muted-foreground">
+                    Temperature sensor #3 not responding
+                  </p>
                 </div>
               </div>
               <div className="flex items-start space-x-3">
                 <AlertTriangle className="h-5 w-5 text-amber-500 mt-0.5" />
                 <div>
                   <p className="text-sm font-medium">Health check due</p>
-                  <p className="text-xs text-muted-foreground">5 cattle require vaccination</p>
+                  <p className="text-xs text-muted-foreground">
+                    5 cattle require vaccination
+                  </p>
                 </div>
               </div>
             </div>
@@ -341,7 +374,7 @@ const AdminDashboard = () => {
         </Card>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default AdminDashboard
+export default AdminDashboard;

@@ -1,6 +1,7 @@
 // FILE: src/api/milk-collections/milk-collections.controller.js
 
 import prisma from '../../config/prisma.js';
+import { sendSmsNotificationToFarmer } from '../../utils/sms.js';
 
 /**
  * Create a new milk collection record
@@ -10,7 +11,7 @@ import prisma from '../../config/prisma.js';
 const createMilkCollection = async (req, res) => {
   try {
     // Debug logging
-    console.log('📦 Received request body:', req.body);
+
     
     // Accept both frontend field names (farmerId, fat) and backend field names (userId, fatPercentage)
     const { 
@@ -91,6 +92,8 @@ const createMilkCollection = async (req, res) => {
         }
       }
     });
+
+    // sendSmsNotificationToFarmer(milkCollection);
 
     res.status(201).json({
       message: 'Milk collection recorded successfully',
