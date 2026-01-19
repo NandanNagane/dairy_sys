@@ -22,9 +22,11 @@ import {
   CheckCircle,
   Loader2,
 } from "lucide-react";
-import { userAPI } from "../../services/userService";
 import { milkCollectionAPI } from "../../services/milkCollectionService";
 import { toast } from "sonner";
+
+// Import TanStack Query hook for farmers
+import { useFarmers } from '../../hooks/queries/useUsers';
 
 // Validation schema
 const milkCollectionSchema = z.object({
@@ -53,8 +55,13 @@ const MilkCollectionForm = ({ rateCard, onSubmit, onSaveAndNext }) => {
   const [payoutEstimate, setPayoutEstimate] = React.useState(0);
   const [qualityWarning, setQualityWarning] = React.useState(null);
   const [isDuplicate, setIsDuplicate] = React.useState(false);
-  const [farmers, setFarmers] = React.useState([]);
-  const [loadingFarmers, setLoadingFarmers] = React.useState(true);
+
+  // Fetch farmers using TanStack Query
+  const { 
+    data: farmers = [], 
+    isLoading: loadingFarmers,
+    isError: farmersError 
+  } = useFarmers();
 
   const {
     register,
@@ -74,28 +81,6 @@ const MilkCollectionForm = ({ rateCard, onSubmit, onSaveAndNext }) => {
   const fat = watch("fat");
   const snf = watch("snf");
   const farmerId = watch("farmerId");
-
-  // Fetch farmers on component mount
-  React.useEffect(() => {
-    const fetchFarmers = async () => {
-      setLoadingFarmers(true);
-      try {
-        const response = await userAPI.getAllUsers({ role: "FARMER" });
-        setFarmers(response.users || []);
-      } catch (error) {
-        console.error("❌ Failed to load farmers:", error);
-        if (error.response?.status === 401) {
-          toast.error("Authentication failed. Please try logging in again.");
-        } else {
-          toast.error(error.response?.data?.error || "Failed to load farmers");
-        }
-      } finally {
-        setLoadingFarmers(false);
-      }
-    };
-
-    fetchFarmers();
-  }, []);
 
   // Calculate payout estimate
   React.useEffect(() => {
@@ -202,6 +187,13 @@ const MilkCollectionForm = ({ rateCard, onSubmit, onSaveAndNext }) => {
                 <Loader2 className="h-4 w-4 animate-spin" />
                 <span>Loading farmers...</span>
               </div>
+            ) : farmersError ? (
+              <Alert className="bg-red-50 border-red-200">
+                <AlertTriangle className="h-4 w-4 text-red-600" />
+                <AlertDescription className="text-red-900">
+                  Failed to load farmers. Please refresh the page.
+                </AlertDescription>
+              </Alert>
             ) : (
               <Select
                 onValueChange={(value) => setValue("farmerId", value)}

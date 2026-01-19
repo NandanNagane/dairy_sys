@@ -99,16 +99,8 @@ const initializeAdmin = async (req, res) => {
       { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
     );
 
-    console.log('🔑 InitializeAdmin - Creating JWT for admin:', { 
-      userId: admin.id, 
-      email: admin.email, 
-      role: admin.role 
-    });
-
     // Set token in HTTP-only cookie
     res.cookie('token', token, getCookieOptions());
-
-    console.log('✅ Admin created successfully - Role:', admin.role);
 
     res.status(201).json({
       message: 'Admin user created successfully',
@@ -155,8 +147,6 @@ const register = async (req, res) => {
     // Validate role if provided
     const validRoles = ['ADMIN', 'FARMER'];
     const userRole = role && validRoles.includes(role) ? role : 'FARMER';
-    
-    console.log('📝 Register - Requested role:', role, '| Assigned role:', userRole);
 
     // Check if email is already taken
     const existingUser = await prisma.user.findUnique({
@@ -201,16 +191,8 @@ const register = async (req, res) => {
       { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
     );
 
-    console.log('🔑 Register - Creating JWT for user:', { 
-      userId: user.id, 
-      email: user.email, 
-      role: user.role 
-    });
-
     // Set token in HTTP-only cookie
     res.cookie('token', token, getCookieOptions());
-
-    console.log('✅ User registered successfully - Role:', user.role);
 
     res.status(201).json({
       message: 'User registered successfully',
@@ -270,19 +252,11 @@ const login = async (req, res) => {
       { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
     );
 
-    console.log('🔑 Login - Creating JWT for user:', { 
-      userId: user.id, 
-      email: user.email, 
-      role: user.role 
-    });
-
     // Set token in HTTP-only cookie
     res.cookie('token', token, getCookieOptions());
 
     // Return user data (without password) and token
     const { password: _, ...userWithoutPassword } = user;
-
-    console.log('✅ Login successful - User role:', userWithoutPassword.role);
 
     res.json({
       message: 'Login successful',

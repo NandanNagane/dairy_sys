@@ -1,129 +1,96 @@
 import React from "react";
-import { useAuthStore } from "../../stores/authStore";
 import { KPICard } from "../ui/kpi-card";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
 import MilkCollectionForm from "../forms/MilkCollectionForm";
 import AddFarmerDialog from "../forms/AddFarmerDialog";
-import { milkCollectionAPI } from "../../services/milkCollectionService";
-import { userAPI } from "../../services/userService";
-import { reportAPI } from "../../services/reportService";
 import { toast } from "sonner";
 import {
   Milk,
   DollarSign,
-  TrendingUp,
   AlertTriangle,
   Droplets,
   Package,
-  Wifi,
   Users,
-  Calendar,
   Clock,
-  Loader2,
+  CheckCircle,
 } from "lucide-react";
 
+// Import TanStack Query hooks
+import { 
+  useDashboardStats, 
+  useCreateMilkCollection 
+} from '../../hooks/queries/useMilkCollections';
+import { useCreateUser } from '../../hooks/queries/useUsers';
+
 const AdminDashboard = () => {
-  const [loading, setLoading] = React.useState(false);
-  const [dashboardData, setDashboardData] = React.useState(null);
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [addFarmerDialogOpen, setAddFarmerDialogOpen] = React.useState(false);
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  const fetchDashboardData = async () => {
-    try {
-      setLoading(true);
-      const stats = await reportAPI.getDashboardStats();
+  // Fetch dashboard stats using TanStack Query
+  const { 
+    data: dashboardData, 
+    isLoading, 
+    isError,
+    error 
+  } = useDashboardStats();
 
-      setDashboardData({
-        totalMilk: stats.totalMilkToday,
-        percentageChange: stats.percentageChange,
-        avgFat: stats.avgFatContent,
-        avgSNF: stats.avgSnf,
-        payoutDue: stats.payoutDue,
-        farmerCount: stats.farmerCount,
-        // Mock data for features not yet implemented
-        lowStock: 3,
-        deviceStatus: { online: 8, offline: 2 },
-        alerts: 5,
-        todayCollections: stats.totalMilkToday,
-        activeDevices: 8,
-      });
-    } catch (error) {
-      console.error("❌ Failed to fetch dashboard data:", error);
-      toast.error("Failed to load dashboard data");
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Milk collection mutation
+  const createMilkCollection = useCreateMilkCollection();
 
-  React.useEffect(() => {
-    fetchDashboardData();
-  }, []);
+  // Create user mutation
+  const createUser = useCreateUser();
 
   const handleMilkCollectionSubmit = async (data) => {
     try {
-      console.log("📥 AdminDashboard received data:", data);
-
-      // Data is already properly formatted from the form
-      await milkCollectionAPI.createMilkCollection(data);
-      toast.success("Milk collection recorded successfully!");
+      console.log('📥 AdminDashboard received data:', data);
+      
+      // Create collection (optimistic update happens automatically)
+      await createMilkCollection.mutateAsync(data);
+      
+      // Close dialog on success
       setDialogOpen(false);
-
-      // Refresh dashboard data
-      fetchDashboardData();
     } catch (error) {
-      console.error("❌ Failed to record milk collection:", error);
-      toast.error(
-        error.response?.data?.error || "Failed to record milk collection"
-      );
-      throw error;
+      // Error handling is done in the mutation
+      console.error('Error in handleMilkCollectionSubmit:', error);
     }
   };
 
   const handleAddFarmer = async (formData) => {
     // Validation
     if (!formData.name || !formData.email || !formData.password) {
-      toast.error("Please fill in all required fields");
+      toast.error('Please fill in all required fields');
       return;
     }
 
-    setIsSubmitting(true);
     try {
-      await userAPI.createUser({
+      await createUser.mutateAsync({
         ...formData,
-        role: "FARMER",
+        role: 'FARMER'
       });
-      toast.success("Farmer added successfully!");
+      
       setAddFarmerDialogOpen(false);
-
-      // Refresh dashboard data to update farmer count
-      fetchDashboardData();
     } catch (error) {
-      console.error("❌ Failed to add farmer:", error);
-      toast.error(error.response?.data?.error || "Failed to add farmer");
-    } finally {
-      setIsSubmitting(false);
+      // Error handling is done in the mutation
+      console.error('Error in handleAddFarmer:', error);
     }
   };
 
-  if (loading) {
+  // Loading state
+  if (isLoading) {
     return (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {[1, 2, 3, 4].map((i) => (
+        {[1, 2, 3, 4].map(i => (
           <Card key={i}>
             <CardHeader>
               <Skeleton className="h-4 w-[200px]" />
@@ -137,19 +104,19 @@ const AdminDashboard = () => {
     );
   }
 
-  // Handle case where data failed to load
-  if (!dashboardData) {
+  // Error state
+  if (isError) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <AlertTriangle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h2 className="text-xl font-semibold mb-2">
-            Failed to load dashboard
-          </h2>
+          <h2 className="text-xl font-semibold mb-2">Failed to load dashboard</h2>
           <p className="text-muted-foreground mb-4">
-            Unable to fetch dashboard data
+            {error?.message || 'Unable to fetch dashboard data'}
           </p>
-          <Button onClick={fetchDashboardData}>Try Again</Button>
+          <Button onClick={() => window.location.reload()}>
+            Try Again
+          </Button>
         </div>
       </div>
     );
@@ -294,7 +261,7 @@ const AdminDashboard = () => {
               open={addFarmerDialogOpen}
               onOpenChange={setAddFarmerDialogOpen}
               onSubmit={handleAddFarmer}
-              isSubmitting={isSubmitting}
+              isSubmitting={createUser.isPending}
             />
           </div>
         </CardContent>

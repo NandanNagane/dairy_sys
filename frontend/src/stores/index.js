@@ -1,6 +1,6 @@
 // Central store exports for easy importing
 export { useAuthStore } from './authStore.js';
-export { useUserStore } from './userStore.js';
-export { useMilkCollectionStore } from './milkCollectionStore.js';
-export { usePaymentStore } from './paymentStore.js';
-export { useExpenseStore } from './expenseStore.js';
+export { useUIStore } from './uiStore.js';
+
+// Note: Server state is now managed by TanStack Query
+// See hooks/queries/ for data fetching hooks

@@ -1,6 +1,7 @@
 // Milk Collections Page Component
-import React from 'react';
+import { useState } from 'react';
 import { useAuthStore } from '../stores/authStore.js';
+import { useMilkCollections, useFarmerCollections } from '../hooks/queries/useMilkCollections';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
@@ -24,8 +25,6 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
-import { milkCollectionAPI } from '../services/milkCollectionService';
-import { userAPI } from '../services/userService';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 
@@ -35,59 +34,29 @@ const MilkCollections = () => {
   const isAdmin = user?.role === 'ADMIN';
   const isFarmer = user?.role === 'FARMER';
 
-  const [collections, setCollections] = React.useState([]);
-  const [summary, setSummary] = React.useState(null);
-  const [pagination, setPagination] = React.useState(null);
-  const [loading, setLoading] = React.useState(false);
-  const [currentPage, setCurrentPage] = React.useState(1);
-  const [filters, setFilters] = React.useState({
-    userId: isFarmer ? user?.id : undefined,
-    page: 1,
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const params = {
+    page: currentPage,
     limit: 10,
     sortBy: 'createdAt',
     sortOrder: 'desc'
-  });
+  };
 
-  const fetchCollections = React.useCallback(async () => {
-    setLoading(true);
-    try {
-      const params = {
-        page: currentPage,
-        limit: filters.limit,
-        sortBy: filters.sortBy,
-        sortOrder: filters.sortOrder
-      };
+  // Use appropriate hook based on role
+  const { data, isLoading, error, refetch } = isAdmin
+    ? useMilkCollections(params)
+    : useFarmerCollections(user?.id, params);
 
-      let response;
-      
-      if (isFarmer) {
-        // Farmers use the user-specific endpoint
-        response = await userAPI.getUserMilkCollections(user.id, params);
-      } else {
-        // Admins use the general endpoint with optional userId filter
-        if (filters.userId) {
-          params.userId = filters.userId;
-        }
-        response = await milkCollectionAPI.getAllMilkCollections(params);
-      }
-      
-      setCollections(response.milkCollections || []);
-      setSummary(response.summary || {});
-      setPagination(response.pagination || {});
-    } catch (error) {
-      console.error('Failed to fetch milk collections:', error);
-      toast.error(error.response?.data?.error || 'Failed to load milk collections');
-    } finally {
-      setLoading(false);
-    }
-  }, [filters, currentPage, isFarmer, user?.id]);
 
-  React.useEffect(() => {
-    fetchCollections();
-  }, [fetchCollections]);
+    
+  // Extract data
+  const collections = data?.collections || [];
+  const summary = data?.summary || null;
+  const pagination = data?.pagination || null;
 
   const handleRefresh = () => {
-    fetchCollections();
+    refetch();
     toast.success('Data refreshed!');
   };
 
@@ -95,7 +64,7 @@ const MilkCollections = () => {
     setCurrentPage(newPage);
   };
 
-  if (loading && collections.length === 0) {
+  if (isLoading && collections.length === 0) {
     return (
       <div className="space-y-6">
         <div className="border-b pb-4">
@@ -300,7 +269,7 @@ const MilkCollections = () => {
                       variant="outline"
                       size="sm"
                       onClick={() => handlePageChange(currentPage - 1)}
-                      disabled={!pagination.hasPrevPage || loading}
+                      disabled={!pagination.hasPrevPage || isLoading}
                     >
                       <ChevronLeft className="h-4 w-4 mr-1" />
                       Previous
@@ -309,7 +278,7 @@ const MilkCollections = () => {
                       variant="outline"
                       size="sm"
                       onClick={() => handlePageChange(currentPage + 1)}
-                      disabled={!pagination.hasNextPage || loading}
+                      disabled={!pagination.hasNextPage || isLoading}
                     >
                       Next
                       <ChevronRight className="h-4 w-4 ml-1" />

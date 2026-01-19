@@ -125,7 +125,7 @@ const getAllMilkCollections = async (req, res) => {
     } = req.query;
 
 
-    
+
 
     // Build where clause for filtering
     const where = {};

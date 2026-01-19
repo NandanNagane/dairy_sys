@@ -315,13 +315,6 @@ const createUser = async (req, res) => {
     const validRoles = ["ADMIN", "FARMER"];
     const userRole = role && validRoles.includes(role) ? role : "FARMER";
 
-    console.log(
-      "📝 CreateUser (Admin) - Requested role:",
-      role,
-      "| Assigned role:",
-      userRole
-    );
-
     // Check if email is already taken
     const existingUser = await prisma.user.findUnique({
       where: { email },
@@ -356,8 +349,6 @@ const createUser = async (req, res) => {
         createdAt: true,
       },
     });
-
-    console.log("✅ User created successfully by admin - Role:", user.role);
 
     // NOTE: We do NOT issue a JWT token here because the admin is already logged in
     // This prevents overwriting the admin's session

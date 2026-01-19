@@ -12,9 +12,6 @@ import prisma from '../config/prisma.js';
  */
 const authenticateToken = async (req, res, next) => {
   try {
-    console.log('🔍 Auth Middleware - Cookies:', req.cookies);
-    console.log('🔍 Auth Middleware - Headers:', req.headers.authorization);
-    
     // Check for token in cookie first
     let token = req.cookies?.token;
     
@@ -24,15 +21,12 @@ const authenticateToken = async (req, res, next) => {
       token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
     }
 
-    console.log('🔍 Auth Middleware - Token found:', !!token);
-
     if (!token) {
       return res.status(401).json({ error: 'Access token required' });
     }
 
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log('✅ Auth Middleware - Token decoded:', decoded);
 
     // Attach user data to request directly from token
     // (No database query to avoid Prisma connection issues)
@@ -62,18 +56,14 @@ const authenticateToken = async (req, res, next) => {
  * @param {Function} next - Express next function
  */
 const requireAdmin = (req, res, next) => {
-  console.log('🔐 RequireAdmin - req.user:', JSON.stringify(req.user, null, 2));
-  
   if (!req.user) {
     return res.status(401).json({ error: 'Authentication required' });
   }
   
   if (req.user.role !== 'ADMIN') {
-    console.log(`❌ RequireAdmin - Access denied. User role: ${req.user.role}, Expected: ADMIN`);
     return res.status(403).json({ error: 'Admin access required' });
   }
   
-  console.log('✅ RequireAdmin - Access granted');
   next();
 };
 

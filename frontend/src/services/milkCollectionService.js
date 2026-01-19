@@ -11,6 +11,7 @@ export const milkCollectionAPI = {
   // Get all milk collections (Admin only)
   getAllMilkCollections: async (params = {}) => {
     const response = await apiClient.get('/milk-collections', { params });
+
     return response.data;
   },
 

@@ -1,6 +1,5 @@
 // Users Management Page Component
-import React, { useEffect, useState } from 'react';
-import { useUserStore } from '../stores/userStore';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
@@ -40,8 +39,15 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
+// Import TanStack Query hooks
+import { useFarmers, useCreateUser, useUpdateUser, useDeleteUser } from '../hooks/queries/useUsers';
+
 const Users = () => {
-  const { users, isLoading, fetchUsers, createUser, updateUser, deleteUser } = useUserStore();
+  // Use TanStack Query hooks
+  const { data: users = [], isLoading } = useFarmers();
+  const createUserMutation = useCreateUser();
+  const updateUserMutation = useUpdateUser();
+  const deleteUserMutation = useDeleteUser();
   
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -57,18 +63,6 @@ const Users = () => {
     role: 'FARMER'
   });
 
-  useEffect(() => {
-    loadUsers();
-  }, []);
-
-  const loadUsers = async () => {
-    try {
-      await fetchUsers({ role: 'FARMER' });
-    } catch (error) {
-      toast.error('Failed to load users');
-    }
-  };
-
   const handleAddUser = async (formData) => {
     try {
       if (!formData.name || !formData.email || !formData.password) {
@@ -76,12 +70,11 @@ const Users = () => {
         return;
       }
 
-      await createUser({ ...formData, role: 'FARMER' });
-      toast.success('User created successfully');
+      await createUserMutation.mutateAsync({ ...formData, role: 'FARMER' });
       setAddDialogOpen(false);
-      loadUsers();
     } catch (error) {
-      toast.error(error.response?.data?.error || 'Failed to create user');
+      // Error already handled in mutation
+      console.error('Error in handleAddUser:', error);
     }
   };
 
@@ -98,26 +91,27 @@ const Users = () => {
         phone: formData.phone
       };
 
-      await updateUser(selectedUser.id, updateData);
-      toast.success('User updated successfully');
+      await updateUserMutation.mutateAsync({ 
+        userId: selectedUser.id, 
+        userData: updateData 
+      });
       setEditDialogOpen(false);
       setSelectedUser(null);
       setFormData({ name: '', email: '', phone: '', role: 'FARMER' });
-      loadUsers();
     } catch (error) {
-      toast.error(error.response?.data?.error || 'Failed to update user');
+      // Error already handled in mutation
+      console.error('Error in handleEditUser:', error);
     }
   };
 
   const handleDeleteUser = async () => {
     try {
-      await deleteUser(selectedUser.id);
-      toast.success('User deleted successfully');
+      await deleteUserMutation.mutateAsync(selectedUser.id);
       setDeleteDialogOpen(false);
       setSelectedUser(null);
-      loadUsers();
     } catch (error) {
-      toast.error(error.response?.data?.error || 'Failed to delete user');
+      // Error already handled in mutation
+      console.error('Error in handleDeleteUser:', error);
     }
   };
 
@@ -169,7 +163,7 @@ const Users = () => {
             open={addDialogOpen}
             onOpenChange={setAddDialogOpen}
             onSubmit={handleAddUser}
-            isSubmitting={isLoading}
+            isSubmitting={createUserMutation.isPending}
           />
         </div>
       </div>
